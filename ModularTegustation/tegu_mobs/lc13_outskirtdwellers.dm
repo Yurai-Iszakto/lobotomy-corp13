@@ -32,7 +32,7 @@
 	turns_per_move = 2
 	butcher_difficulty = 2
 	buffed = 0
-	deathmessage = "pops."
+	death_message = "pops."
 	density = TRUE
 	search_objects = 1
 	tame_chance = 5
@@ -51,9 +51,9 @@
 
 /mob/living/simple_animal/hostile/morsel/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>[src] will consume body parts and gibs to increase their maximum health. [src] will flee from hostiles if their health is below 200.</span>"
+	. += span_notice("[src] will consume body parts and gibs to increase their maximum health. [src] will flee from hostiles if their health is below 200.")
 	if(maxHealth >= 250)
-		. += "<span class='notice'>Drag yourself onto [src] in order to ride them.</span>"
+		. += span_notice("Drag yourself onto [src] in order to ride them.")
 
 /mob/living/simple_animal/hostile/morsel/AttackingTarget()
 	retreat_distance = 0
@@ -89,7 +89,7 @@
 	if(.)
 		var/dir_to_target = get_dir(get_turf(src), get_turf(target))
 		animate(src, pixel_y = (base_pixel_y + 18), time = 2)
-		addtimer(CALLBACK(src, .proc/AnimateBack), 2)
+		addtimer(CALLBACK(src, PROC_REF(AnimateBack)), 2)
 		for(var/i = 1 to 2)
 			var/turf/T = get_step(get_turf(src), dir_to_target)
 			if(T.density)
@@ -106,7 +106,7 @@
 	if(!is_type_in_list(O, food_type))
 		return ..()
 	if(stat == DEAD)
-		to_chat(user, "<span class='warning'>[src] is dead!</span>")
+		to_chat(user, span_warning("[src] is dead!"))
 		return
 	if(!locate(user) in friends)
 		if(prob(tame_chance))
@@ -114,7 +114,7 @@
 			tame_chance = 5
 		else
 			tame_chance += bonus_tame_chance
-	visible_message("<span class='notice'>[src] bites [O] and grinds it into a digestable paste.</span>")
+	visible_message(span_notice("[src] bites [O] and grinds it into a digestable paste."))
 	playsound(get_turf(user), 'sound/items/eatfood.ogg', 10, 3, 3)
 	buffed = (buffed + 1)
 	adjustBruteLoss(-5)
@@ -124,7 +124,7 @@
 
 /mob/living/simple_animal/hostile/morsel/proc/PustuleChurn()
 	var/newsize = current_size
-	visible_message("<span class='notice'>[src]'s grows more chitin.</span>")
+	visible_message(span_notice("[src]'s grows more chitin."))
 	if(maxHealth <= 2000)
 		maxHealth = maxHealth + 10
 	switch(maxHealth)
@@ -152,12 +152,12 @@
 		if(250)
 			response_help_continuous = "pets"
 			response_help_simple = "pet"
-			deathmessage = "collapses as their pustules lose their bright orange hue."
+			death_message = "collapses as their pustules lose their bright orange hue."
 			guaranteed_butcher_results = list(/obj/item/food/meat/slab/worm = 4)
 			can_buckle = TRUE
 			buckle_lying = 0
 			mob_size = MOB_SIZE_LARGE
-			visible_message("<span class='notice'>[src] looks big enough to use as a steed now.</span>")
+			visible_message(span_notice("[src] looks big enough to use as a steed now."))
 			AddElement(/datum/element/ridable, /datum/component/riding/creature/no_monsteroffset)
 	var/extra_meat = (maxHealth-120)/20
 	extra_meat = round(extra_meat)
@@ -200,7 +200,7 @@
 	a_intent = "help"
 	maxHealth = 300 //100 less due to loss of arm
 	health = 300
-	deathmessage = "falls to their knees as the sound of gears slowly fades."
+	death_message = "falls to their knees as the sound of gears slowly fades."
 	melee_damage_lower = 0
 	melee_damage_upper = 4
 	mob_size = MOB_SIZE_LARGE
@@ -210,7 +210,7 @@
 
 /mob/living/simple_animal/hostile/price/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>Attacking [src] with a light source will attach it to them. [src] will obey simple commands when touched with a bare hand.</span>"
+	. += span_notice("Attacking [src] with a light source will attach it to them. [src] will obey simple commands when touched with a bare hand.")
 
 /mob/living/simple_animal/hostile/price/Login()
 	. = ..()
@@ -261,10 +261,10 @@
 		if(A == M || anchored == 1)
 			return
 		if(!A)
-			to_chat(M, "<span class='notice'>There is no objects nearby that [src] can haul...</span>")
+			to_chat(M, span_notice("There is no objects nearby that [src] can haul..."))
 			return
 		start_pulling(A)
-		visible_message("<span class='notice'>[src] begins to haul [A].</span>")
+		visible_message(span_notice("[src] begins to haul [A]."))
 		break
 
 		//Crimson
@@ -305,7 +305,7 @@
 
 /mob/living/simple_animal/hostile/smallchuckles/examine(mob/user)
 	. = ..()
-	. += "<span class='notice'>[src] will do a trick and heal 5 sanity when touched with a bare hand.</span>"
+	. += span_notice("[src] will do a trick and heal 5 sanity when touched with a bare hand.")
 
 /mob/living/simple_animal/hostile/smallchuckles/Login()
 	. = ..()
@@ -327,13 +327,13 @@
 /mob/living/simple_animal/hostile/smallchuckles/death(gibbed)
 	playsound(get_turf(src), 'sound/machines/honkbot_evil_laugh.ogg', 10, 3, 3)
 	animate(src, transform = matrix()*1.8, color = "#FF0000", time = 15)
-	addtimer(CALLBACK(src, .proc/DeathExplosion), 15)
+	addtimer(CALLBACK(src, PROC_REF(DeathExplosion)), 15)
 	..()
 
 /mob/living/simple_animal/hostile/smallchuckles/attack_hand(mob/living/carbon/M)
 	if(!stat && M.a_intent == INTENT_HELP && buffed <= world.time && can_act)
 		can_act = FALSE
-		to_chat(M, "<span class='notice'>You watch [src] do a trick!</span>")
+		to_chat(M, span_notice("You watch [src] do a trick!"))
 		buffed = world.time + (10 SECONDS) //to avoid spamming
 		if(do_after(M, 4 SECONDS, target = M))
 			for(var/mob/living/carbon/human/L in oview(get_turf(src), 2)) //Even if the trick is bad hes trying his best.
@@ -350,7 +350,7 @@
 /mob/living/simple_animal/hostile/smallchuckles/proc/DeathExplosion()
 	if(QDELETED(src))
 		return
-	visible_message("<span class='danger'>[src] suddenly explodes!</span>")
+	visible_message(span_danger("[src] suddenly explodes!"))
 	for(var/mob/living/L in view(5, src))
 		if(!faction_check_mob(L))
 			L.apply_damage(35, RED_DAMAGE, null, L.run_armor_check(null, RED_DAMAGE))
@@ -378,7 +378,7 @@
 	butcher_difficulty = 2
 	butcher_results = list(/obj/item/food/meat/slab/chicken = 2, /obj/item/food/meat/slab/human = 1, /obj/item/food/egg = 1,) // chicken and human for what he eats, egg? |MESSAGE BELOW|
 	food_type = list(/obj/item/organ, /obj/item/bodypart/head, /obj/item/bodypart/r_arm, /obj/item/bodypart/l_arm, /obj/item/bodypart/l_leg, /obj/item/bodypart/r_leg, /obj/item/food/meat/slab/human, /obj/item/food/meat/slab/crimson,) // scower area for food and eat it
-	deathmessage = "screeches as it falls over." // |MESSAGE ABOVE|
+	death_message = "screeches as it falls over." // |MESSAGE ABOVE|
 	density = TRUE
 	search_objects = 1
 	del_on_death = TRUE
@@ -401,7 +401,7 @@
 	icon_state = "kcorp_drone_idle"
 	icon_living = "kcorp_drone_idle"
 	icon_dead = "kcorp_drone_idle"
-	faction = list("hostile") // should target humanoids only and annoy them to no end
+	faction = list("hostile", "kcorp") // should target humanoids only and annoy them to no end
 	response_disarm_continuous = "pushes aside"
 	response_disarm_simple = "push aside"
 	attack_verb_continuous = "flashes"
@@ -416,7 +416,7 @@
 	turns_per_move = 3
 	butcher_difficulty = 3
 	butcher_results = list(/obj/item/ksyringe = 1, /obj/item/assembly/flash/handheld = 1)
-	deathmessage = "buzzes as he falls out of the air."
+	death_message = "buzzes as he falls out of the air."
 	density = FALSE
 	search_objects = 1
 	del_on_death = TRUE
@@ -438,7 +438,7 @@
 		L.Paralyze(5 SECONDS) //you better dodge it
 		var/obj/item/held = L.get_active_held_item()
 		L.dropItemToGround(held) //Drops everyone's weapons
-		to_chat(L, "<span class='danger'>[src] shines a blinding light!</span>")
+		to_chat(L, span_danger("[src] shines a blinding light!"))
 
 	SLEEP_CHECK_DEATH(1 SECONDS)
 	icon_state = "kcorp_drone_idle"
@@ -505,7 +505,7 @@ Mobs that mostly focus on dealing RED damage, they are all a bit more frail than
 /mob/living/simple_animal/hostile/lovetown/proc/SpawnSuicidal() //all mobs spawn at least 1 suicidal on death, except the suicidals themselves
 	if(QDELETED(src))
 		return
-	visible_message("<span class='danger'>[src] flesh rips apart!</span>")
+	visible_message(span_danger("[src] flesh rips apart!"))
 	playsound(get_turf(src), 'sound/effects/ordeals/crimson/dusk_dead.ogg', 50, 1)
 	var/valid_directions = list(0) // 0 is used by get_turf to find the turf a target, so it'll at the very least be able to spawn on itself.
 	for(var/d in list(NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST))
@@ -524,7 +524,7 @@ Mobs that mostly focus on dealing RED damage, they are all a bit more frail than
 /mob/living/simple_animal/hostile/lovetown/death(gibbed)
 	if(mob_spawn_amount > 0)
 		animate(src, transform = matrix()*1.2, color = "#FF0000", time = 5)
-		addtimer(CALLBACK(src, .proc/SpawnSuicidal), 5)
+		addtimer(CALLBACK(src, PROC_REF(SpawnSuicidal)), 5)
 	..()
 
 //Love Town Suicidal - Weak, screams around itself occasionally, spawned by other enemies on death.
@@ -749,7 +749,7 @@ Mobs that mostly focus on dealing RED damage, they are all a bit more frail than
 		playsound(get_turf(src), 'sound/abnormalities/apocalypse/swing.ogg', 75, 0, 3)
 		SLEEP_CHECK_DEATH(1.5 SECONDS) //so we  dont instantly grab people
 		grab_ready = TRUE
-		addtimer(CALLBACK (src, .proc/DisableCounter), 4 SECONDS)
+		addtimer(CALLBACK (src, PROC_REF(DisableCounter)), 4 SECONDS)
 		damage_taken = 0
 
 //WAW(?) miniboss, takes quite a lot of firepower to take down
@@ -837,8 +837,8 @@ Mobs that mostly focus on dealing RED damage, they are all a bit more frail than
 	counter_ready = FALSE
 	//Speed becomes 4 or 2 and returns to 6 or 4 after 4 seconds.
 	TemporarySpeedChange(-counter_speed, 4 SECONDS)
-	visible_message("<span class='warning'>[src] sprints toward [target]!</span>", "<span class='notice'>You quickly dash!</span>", "<span class='notice'>You hear heavy footsteps speed up.</span>")
-	addtimer(CALLBACK(src, .proc/DisableCounter), 4 SECONDS) //disables the counter after 4 seconds
+	visible_message(span_warning("[src] sprints toward [target]!"), span_notice("You quickly dash!"), span_notice("You hear heavy footsteps speed up."))
+	addtimer(CALLBACK(src, PROC_REF(DisableCounter)), 4 SECONDS) //disables the counter after 4 seconds
 
 /mob/living/simple_animal/hostile/lovetown/abomination/proc/DisableCounter() //resets the counter
 	if(countering)

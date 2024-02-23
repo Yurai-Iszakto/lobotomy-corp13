@@ -7,6 +7,7 @@
 	icon_state = "blubbering"
 	icon_living = "blubbering"
 	icon_dead = "blubbering_egg"
+	portrait = "blubbering_toad"
 	var/icon_tongue = "blubbering_tongue"
 	del_on_death = FALSE
 	pixel_x = -16
@@ -18,7 +19,7 @@
 	can_breach = TRUE
 	melee_damage_type = BLACK_DAMAGE
 	stat_attack = DEAD
-	damage_coeff = list(BRUTE = 1.0, RED_DAMAGE = 0.7, WHITE_DAMAGE = 0.7, BLACK_DAMAGE = 0.3, PALE_DAMAGE = 2)
+	damage_coeff = list(RED_DAMAGE = 0.7, WHITE_DAMAGE = 0.7, BLACK_DAMAGE = 0.3, PALE_DAMAGE = 2)
 	move_to_delay = 3
 	melee_damage_lower = 35
 	melee_damage_upper = 45
@@ -32,10 +33,16 @@
 		ABNORMALITY_WORK_INSTINCT = list(70, 60, 50, 50, 50),
 		ABNORMALITY_WORK_INSIGHT = 70,
 		ABNORMALITY_WORK_ATTACHMENT = list(50, 40, 30, 30, 30),
-		ABNORMALITY_WORK_REPRESSION = list(70, 30, 30, 30, 30)
-		)
+		ABNORMALITY_WORK_REPRESSION = list(70, 30, 30, 30, 30),
+	)
 	work_damage_amount = 6
 	work_damage_type = BLACK_DAMAGE
+
+	// Petting
+	pet_bonus = TRUE
+	pet_bonus_emote = "Weh!"
+	response_help_simple = "pet"
+	response_help_continuous = "pets"
 
 	//work
 	var/pulse_healing = 15
@@ -48,13 +55,14 @@
 	var/jump_cooldown_time = 6 SECONDS
 	var/can_act = TRUE
 	var/retreating = FALSE
-	var/idiot = null
+	var/mob/living/idiot = null
 	var/transformed = FALSE
 	var/broken = FALSE
+	var/persistant = FALSE
 
 	ego_list = list(
-	/datum/ego_datum/weapon/melty_eyeball,
-	/datum/ego_datum/armor/melty_eyeball
+		/datum/ego_datum/weapon/melty_eyeball,
+		/datum/ego_datum/armor/melty_eyeball,
 	)
 	gift_type =  /datum/ego_gifts/melty_eyeball
 	gift_message = "The toad gave you an eyeball, maybe it was for lending an ear?"
@@ -76,7 +84,7 @@
 		return
 	var/num = pick(1,2,3,4)
 	playsound(get_turf(src), "sound/abnormalities/blubbering_toad/blurble[num].ogg", 100, FALSE)
-	addtimer(CALLBACK(src, .proc/BlubberLoop), rand(3,10) SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(BlubberLoop)), rand(3,10) SECONDS)
 	if(IsContained() && (healing_pulse_amount > 0)) //isn't breached and has charges left
 		healing_pulse_amount --
 		HealPulse()
@@ -86,13 +94,17 @@
 		H.adjustSanityLoss(-pulse_healing)
 
 //Attack or approach it directly and it attacks you!
-/mob/living/simple_animal/hostile/abnormality/blubbering_toad/BreachEffect(mob/living/carbon/human/user, breach_type = BREACH_NORMAL)
-	..()
-	idiot = user
+/mob/living/simple_animal/hostile/abnormality/blubbering_toad/BreachEffect(mob/living/user, breach_type = BREACH_NORMAL)
+	if(breach_type == BREACH_PINK)
+		persistant = TRUE
+	SetIdiot(user)
+	return ..()
 
 /mob/living/simple_animal/hostile/abnormality/blubbering_toad/attack_hand(mob/living/carbon/human/user)
 	. = ..()
 	if(!IsContained())
+		return
+	if(user.a_intent == INTENT_HELP)
 		return
 	BreachEffect(user)
 
@@ -118,6 +130,13 @@
 
 /mob/living/simple_animal/hostile/abnormality/blubbering_toad/proc/ReturnCell()
 	QDEL_NULL(src)
+
+/mob/living/simple_animal/hostile/abnormality/blubbering_toad/proc/SetIdiot(mob/living/L)
+	idiot = L
+	if(idiot)
+		to_chat(src, span_notice("You current target is [idiot]!"))
+	else
+		to_chat(src, span_notice("Your work here is done, you should now return to your cell."))
 
 /mob/living/simple_animal/hostile/abnormality/blubbering_toad/death() //EGG! just kidding no egg....
 	density = FALSE
@@ -151,14 +170,12 @@
 		for(var/turf/T in turfs_to_hit)
 			if(T.density)
 				break
-			for(var/mob/living/L in T)
-				if(L != idiot)
-					continue
-				L.apply_damage(tongue_damage, BLACK_DAMAGE, null, L.run_armor_check(null, BLACK_DAMAGE), spread_damage = TRUE)
-				new /obj/effect/temp_visual/dir_setting/bloodsplatter(get_turf(L), pick(GLOB.alldirs))
-				if(!L.anchored)
+			if(idiot in T)
+				idiot.apply_damage(tongue_damage, BLACK_DAMAGE, null, idiot.run_armor_check(null, BLACK_DAMAGE), spread_damage = TRUE)
+				new /obj/effect/temp_visual/dir_setting/bloodsplatter(get_turf(idiot), pick(GLOB.alldirs))
+				if(!idiot.anchored)
 					var/whack_speed = (prob(60) ? 1 : 4)
-					L.throw_at(MT, rand(1, 2), whack_speed, src)
+					idiot.throw_at(MT, rand(1, 2), whack_speed, src)
 		sleep(5)
 		tongue_cooldown = world.time + tongue_cooldown_time
 		can_act = TRUE
@@ -203,19 +220,30 @@
 		melee_damage_type = BLACK_DAMAGE
 	if(H.health < 0)
 		H.gib()
-		addtimer(CALLBACK(src, .proc/ReturnCell), 10 SECONDS)
+		if(!persistant)
+			addtimer(CALLBACK(src, PROC_REF(ReturnCell)), 10 SECONDS)
+			return
+		idiot = null
+		for(var/mob/living/carbon/human/HU in GLOB.player_list)
+			if(HU.z != z)
+				continue
+			if(HU.stat == DEAD)
+				continue
+			if(isnull(idiot))
+				idiot = HU
+			if(idiot.health > HU.health)
+				idiot = HU
+		if(isnull(idiot))
+			addtimer(CALLBACK(src, PROC_REF(ReturnCell)), 10 SECONDS)
+			return
+		SetIdiot(idiot)
+
 
 /mob/living/simple_animal/hostile/abnormality/blubbering_toad/ListTargets()
-	if(!idiot)
-		return list()
-	var/list/see = ..()
-	var/list/targeting = list()
-	targeting += idiot
-	see &= targeting // remove all entries except the idiot
-	if(!see)
-		if(!retreating)
-			retreating = TRUE
-	return see
+	. = ..()
+	if(idiot in .)
+		return list(idiot)
+	return
 
 //Transformation
 /mob/living/simple_animal/hostile/abnormality/blubbering_toad/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
@@ -249,7 +277,7 @@
 /datum/status_effect/blue_resin
 	id = "blue resin"
 	status_type = STATUS_EFFECT_UNIQUE
-	duration = 3000 //Lasts 5 mins
+	duration = 5 MINUTES
 	alert_type = /atom/movable/screen/alert/status_effect/blue_resin
 
 /atom/movable/screen/alert/status_effect/blue_resin
@@ -261,13 +289,15 @@
 /datum/status_effect/blue_resin/on_apply()
 	. = ..()
 	if(ishuman(owner))
-		var/mob/living/carbon/human/L = owner
-		L.physiology.black_mod *= 0.9
+		return
+	var/mob/living/carbon/human/status_holder = owner
+	status_holder.physiology.black_mod *= 0.9
 
 /datum/status_effect/blue_resin/on_remove()
 	. = ..()
 	if(ishuman(owner))
-		var/mob/living/carbon/human/L = owner
-		L.physiology.black_mod /= 0.9
+		return
+	var/mob/living/carbon/human/status_holder = owner
+	status_holder.physiology.black_mod /= 0.9
 
 #undef STATUS_EFFECT_BLUERESIN

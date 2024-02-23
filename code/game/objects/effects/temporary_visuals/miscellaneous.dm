@@ -534,7 +534,7 @@
 	status = rcd_status
 	delay = rcd_delay
 	if (status == RCD_DECONSTRUCT)
-		addtimer(CALLBACK(src, /atom/.proc/update_icon), 11)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_icon)), 11)
 		delay -= 11
 		icon_state = "rcd_end_reverse"
 	else
@@ -556,7 +556,7 @@
 		qdel(src)
 	else
 		icon_state = "rcd_end"
-		addtimer(CALLBACK(src, .proc/end), 15)
+		addtimer(CALLBACK(src, PROC_REF(end)), 15)
 
 /obj/effect/constructing_effect/proc/end()
 	qdel(src)
@@ -571,7 +571,7 @@
 /obj/effect/temp_visual/bee_gas/Initialize()
 	. = ..()
 	animate(src, alpha = rand(125,200), time = 5)
-	addtimer(CALLBACK(src, .proc/fade_out), 5)
+	addtimer(CALLBACK(src, PROC_REF(fade_out)), 5)
 
 /obj/effect/temp_visual/bee_gas/proc/fade_out()
 	animate(src, alpha = 0, time = duration-5)
@@ -597,7 +597,7 @@
 
 /obj/effect/temp_visual/judgement/Initialize()
 	. = ..()
-	addtimer(CALLBACK(src, .proc/fade_out), 10)
+	addtimer(CALLBACK(src, PROC_REF(fade_out)), 10)
 
 /obj/effect/temp_visual/judgement/proc/fade_out()
 	animate(src, alpha = 0, time = duration-10)
@@ -634,7 +634,7 @@
 /obj/effect/temp_visual/water_waves/Initialize()
 	. = ..()
 	animate(src, alpha = 255, time = 10)
-	addtimer(CALLBACK(src, .proc/fade_out), 10 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(fade_out)), 10 SECONDS)
 
 /obj/effect/temp_visual/water_waves/proc/fade_out()
 	animate(src, alpha = 0, time = (duration - 10 SECONDS))
@@ -731,7 +731,7 @@
 	. = ..()
 	icon_state = "flesh[rand(0,3)]"
 	animate(src, alpha = 255, time = 5)
-	addtimer(CALLBACK(src, .proc/fade_out), 4 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(fade_out)), 4 SECONDS)
 
 /obj/effect/temp_visual/flesh/proc/fade_out()
 	animate(src, alpha = 0, time = (duration - 4 SECONDS))
@@ -763,9 +763,9 @@
 /obj/effect/temp_visual/censored/Initialize()
 	. = ..()
 	animate(src, alpha = 255, time = 2)
-	addtimer(CALLBACK(src, .proc/fade_out), 17)
+	addtimer(CALLBACK(src, PROC_REF(fade_out)), 17)
 	for(var/i = 1 to 9)
-		addtimer(CALLBACK(src, .proc/shake), 2*i)
+		addtimer(CALLBACK(src, PROC_REF(shake)), 2*i)
 
 /obj/effect/temp_visual/censored/proc/shake()
 	animate(src, pixel_x = base_pixel_x + rand(-4, 4), pixel_y = base_pixel_y + rand(-4, 4), time = 1)
@@ -810,7 +810,7 @@
 
 /obj/effect/temp_visual/cross/fall/Initialize()
 	. = ..()
-	addtimer(CALLBACK(src, .proc/FadeOut), 6 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(FadeOut)), 6 SECONDS)
 
 /obj/effect/temp_visual/cross/fall/proc/FadeOut()
 	animate(src, alpha = 0, time = 2 SECONDS)
@@ -844,7 +844,7 @@
 /obj/effect/temp_visual/alriune_curtain/Initialize()
 	. = ..()
 	animate(src, alpha = 255, time = 5)
-	addtimer(CALLBACK(src, .proc/FadeOut), 5)
+	addtimer(CALLBACK(src, PROC_REF(FadeOut)), 5)
 
 /obj/effect/temp_visual/alriune_curtain/proc/FadeOut()
 	animate(src, alpha = 0, time = 15)
@@ -995,7 +995,7 @@
 
 /obj/effect/temp_visual/house/Initialize()
 	. = ..()
-	addtimer(CALLBACK(src, .proc/FadeOut), 2 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(FadeOut)), 2 SECONDS)
 
 /obj/effect/temp_visual/house/proc/FadeOut()
 	animate(src, alpha = 0, time = 1 SECONDS)
@@ -1039,35 +1039,35 @@
 	icon_state = "nobody_slash"
 	duration = 5
 
-/obj/effect/temp_visual/HoloCommand
+/obj/effect/temp_visual/holo_command
 	icon = 'ModularTegustation/Teguicons/lc13icons.dmi'
 	light_range = 1.5
 	light_power = 0.2
 	light_system = MOVABLE_LIGHT
 	duration = 150 		//15 Seconds
 
-/obj/effect/temp_visual/HoloCommand/commandMove
+/obj/effect/temp_visual/holo_command/command_move
 	icon_state = "Move_here_wagie"
 	light_range = 1
 	light_power = 1
 	light_color = COLOR_VERY_LIGHT_GRAY
 
-/obj/effect/temp_visual/HoloCommand/commandWarn
+/obj/effect/temp_visual/holo_command/command_warn
 	icon_state = "Watch_out_wagie"
 	light_color = COLOR_PALE_RED_GRAY
 
-/obj/effect/temp_visual/HoloCommand/commandGaurd
+/obj/effect/temp_visual/holo_command/command_guard
 	icon_state = "Guard_this_wagie"
 	light_color = COLOR_VERY_SOFT_YELLOW
 
-/obj/effect/temp_visual/HoloCommand/commandHeal
+/obj/effect/temp_visual/holo_command/command_heal
 	icon_state = "Heal_this_wagie"
 	light_color = COLOR_VERY_PALE_LIME_GREEN
 
-/obj/effect/temp_visual/HoloCommand/commandFightA
+/obj/effect/temp_visual/holo_command/command_fight_a
 	icon_state = "Fight_this_wagie1"
 	light_color = COLOR_PALE_BLUE_GRAY
 
-/obj/effect/temp_visual/HoloCommand/commandFightB
+/obj/effect/temp_visual/holo_command/command_fight_b
 	icon_state = "Fight_this_wagie2"
 	light_color = COLOR_PALE_BLUE_GRAY

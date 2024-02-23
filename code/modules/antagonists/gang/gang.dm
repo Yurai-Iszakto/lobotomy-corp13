@@ -21,6 +21,10 @@
 	var/gang_objective = "Be super cool and stuff."
 	/// Whether or not this family member is the first of their family.
 	var/starter_gangster = FALSE
+	/// The gangster's original real name. Used for renaming stuff, kept between gang switches.
+	var/original_name
+	/// Type of team to create when creating the gang in the first place. Used for renames.
+	var/gang_team_type = /datum/team/gang
 
 	/// A reference to the handler datum that manages the families gamemode. In case of no handler (admin-spawned during round), this will be null; this is fine.
 	var/datum/gang_handler/handler
@@ -30,7 +34,7 @@
 
 /datum/antagonist/gang/get_admin_commands()
 	. = ..()
-	.["Give extra equipment"] = CALLBACK(src,.proc/equip_gangster_in_inventory)
+	.["Give extra equipment"] = CALLBACK(src, PROC_REF(equip_gangster_in_inventory))
 
 /datum/antagonist/gang/create_team(team_given) // gets called whenever add_antag_datum() is called on a mind
 	if(team_given)

@@ -10,26 +10,30 @@
 	var/icon_active = "sleeping_active"
 	can_buckle = TRUE
 	buckle_lying = 90
-	maxHealth = 10
-	health = 10
+	maxHealth = 450
+	health = 450
+	damage_coeff = list(RED_DAMAGE = 1, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 1, PALE_DAMAGE = 2)
 	del_on_death = FALSE
 	threat_level = ZAYIN_LEVEL
 	work_chances = list(
 		ABNORMALITY_WORK_INSTINCT = 50,
 		ABNORMALITY_WORK_INSIGHT = 50,
 		ABNORMALITY_WORK_ATTACHMENT = 50,
-		ABNORMALITY_WORK_REPRESSION = 70
-		)
+		ABNORMALITY_WORK_REPRESSION = 70,
+	)
 	work_damage_amount = 6
 	work_damage_type = WHITE_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/doze,
-		/datum/ego_datum/armor/doze
-		)
+		/datum/ego_datum/armor/doze,
+	)
 	max_boxes = 10
 	gift_type =  /datum/ego_gifts/doze
 	abnormality_origin = ABNORMALITY_ORIGIN_ARTBOOK
+
+	move_to_delay = 2.5
+	max_buckled_mobs = 10
 
 	var/grab_cooldown
 	var/grab_cooldown_time = 20 SECONDS
@@ -39,16 +43,18 @@
 
 //work code
 /mob/living/simple_animal/hostile/abnormality/sleeping/WorkChance(mob/living/carbon/human/user, chance)
-	. = ..()
 	if (istype(user.ego_gift_list[EYE], /datum/ego_gifts/doze))
 		return chance + 5
+	return chance
 
 /mob/living/simple_animal/hostile/abnormality/sleeping/SuccessEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	user.apply_status_effect(STATUS_EFFECT_RESTED)
 	to_chat(user, span_notice("You feel refreshed!."))
 	..()
 
 /mob/living/simple_animal/hostile/abnormality/sleeping/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	user.Stun(5 SECONDS)
 	step_towards(user, src)
 	sleep(0.5 SECONDS)
@@ -60,6 +66,11 @@
 	buckle_mob(user)
 	update_icon()
 	return
+
+/mob/living/simple_animal/hostile/abnormality/sleeping/BreachEffect(mob/living/carbon/human/user, breach_type)
+	if(breach_type == BREACH_PINK)
+		can_breach = TRUE
+	return ..()
 
 /mob/living/simple_animal/hostile/abnormality/sleeping/Life()
 	update_icon()
@@ -110,7 +121,7 @@
 /datum/status_effect/rested
 	id = "rested"
 	status_type = STATUS_EFFECT_UNIQUE
-	duration = 600		//Lasts 60 seconds
+	duration = 60 SECONDS
 	alert_type = /atom/movable/screen/alert/status_effect/rested
 
 /atom/movable/screen/alert/status_effect/rested
@@ -121,10 +132,11 @@
 
 /datum/status_effect/rested/tick()
 	. = ..()
-	var/mob/living/carbon/human/H = owner
+	var/mob/living/carbon/human/status_holder = owner
 	if(prob(50))
-		H.adjustBruteLoss(-1)
-		H.adjustSanityLoss(-1)
+		return
+	status_holder.adjustBruteLoss(-1)
+	status_holder.adjustSanityLoss(-1)
 
 //pink midnight code
 
@@ -138,6 +150,10 @@
 	animate(src, alpha = 0, time = 5 SECONDS)
 	QDEL_IN(src, 5 SECONDS)
 	..()
+
+/mob/living/simple_animal/hostile/abnormality/sleeping/ListTargets()
+	. = ..()
+	. -= buckled_mobs
 
 #undef STATUS_EFFECT_RESTED
 
@@ -154,12 +170,12 @@
 	var/mob/living/carbon/C = L
 	to_chat(C, span_warning("You feel tired..."))
 	C.blur_eyes(5)
-	addtimer(CALLBACK (C, .mob/living/proc/AdjustSleeping, 20), 2 SECONDS)
+	addtimer(CALLBACK (C, TYPE_PROC_REF(/mob/living, AdjustSleeping), 20), 2 SECONDS)
 	return ..()
 
 /datum/reagent/abnormality/sleeping/on_mob_life(mob/living/L)
 	if(!iscarbon(L))
 		return
 	var/mob/living/carbon/C = L
-	addtimer(CALLBACK (C, .mob/living/proc/AdjustSleeping, 20), 2 SECONDS)
+	addtimer(CALLBACK (C, TYPE_PROC_REF(/mob/living, AdjustSleeping), 20), 2 SECONDS)
 	return ..()

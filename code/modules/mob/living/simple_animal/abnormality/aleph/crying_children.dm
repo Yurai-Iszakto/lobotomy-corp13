@@ -28,16 +28,16 @@
 	start_qliphoth = 2
 	can_breach = TRUE
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(0, 0, 40, 45, 50),
-						ABNORMALITY_WORK_INSIGHT = list(0, 0, 30, 35, 40),
-						ABNORMALITY_WORK_ATTACHMENT = list(0, 0, 0, 10, 20),
-						ABNORMALITY_WORK_REPRESSION = list(0, 0, 45, 50, 55),
-						)
+		ABNORMALITY_WORK_INSTINCT = list(0, 0, 40, 45, 50),
+		ABNORMALITY_WORK_INSIGHT = list(0, 0, 30, 35, 40),
+		ABNORMALITY_WORK_ATTACHMENT = list(0, 0, 0, 10, 20),
+		ABNORMALITY_WORK_REPRESSION = list(0, 0, 45, 50, 55),
+	)
 	work_damage_amount = 14
 	work_damage_type = WHITE_DAMAGE
 	attack_sound = 'sound/abnormalities/crying_children/attack_salvador.ogg'
-	deathsound = 'sound/abnormalities/crying_children/death.ogg'
-	deathmessage = "crumbles into pieces."
+	death_sound = 'sound/abnormalities/crying_children/death.ogg'
+	death_message = "crumbles into pieces."
 	del_on_death = FALSE
 	ego_list = list(/datum/ego_datum/weapon/shield/combust, /datum/ego_datum/armor/combust)
 	gift_type =  /datum/ego_gifts/inconsolable
@@ -63,7 +63,7 @@
 
 	attack_action_types = list(
 		/datum/action/cooldown/tcc_sorrow,
-		/datum/action/cooldown/tcc_combust
+		/datum/action/cooldown/tcc_combust,
 	)
 
 // Sorrow is too strong to be spammed, so you can only do it when mobs are nearby as a player
@@ -126,10 +126,11 @@
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/Initialize()
 	. = ..()
-	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, .proc/OnMobDeath) // Alright, here we go again
+	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, PROC_REF(OnMobDeath)) // Alright, here we go again
 
 // Silly multi icons, lets fix that! This is called each time it's spawned in containment, so it has normal sprite on adminbus spawn
 /mob/living/simple_animal/hostile/abnormality/crying_children/PostSpawn()
+	. = ..()
 	desc = "A wax statue of an ...angel? It creepily floats around the containment room. You feel like you shouldn't be here for too long"
 	icon = 'ModularTegustation/Teguicons/32x32.dmi'
 	icon_state = "unspeaking_child"
@@ -166,7 +167,7 @@
 		desperation_cooldown = (world.time + desperation_cooldown_time)
 		if(charge == maxcharge - 10) // 10 Final Seconds, You can't reduce anymore, only kill!!
 			charge = 666
-			addtimer(CALLBACK(src, .proc/Scorching_Desperation), 10 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(Scorching_Desperation)), 10 SECONDS)
 			for(var/mob/living/L in GLOB.mob_living_list)
 				if(faction_check_mob(L, FALSE) || L.z != z || L.stat == DEAD)
 					continue
@@ -188,8 +189,8 @@
 		L.apply_lc_burn(50)
 		new /obj/effect/temp_visual/fire/fast(get_turf(L))
 
-/mob/living/simple_animal/hostile/abnormality/crying_children/BreachEffect(mob/living/carbon/human/user)
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "No one’s going to cry on my behalf even if I’m sad.", 25))
+/mob/living/simple_animal/hostile/abnormality/crying_children/BreachEffect(mob/living/carbon/human/user, breach_type)
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "No one’s going to cry on my behalf even if I’m sad.", 25))
 	..()
 	desc = "A towering angel statue, setting everything on it's path ablaze"
 	icon = 'ModularTegustation/Teguicons/96x96.dmi'
@@ -373,11 +374,13 @@
 
 // Work Stuff
 /mob/living/simple_animal/hostile/abnormality/crying_children/NeutralEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(prob(20))
 		Curse(user)
 	return
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-1)
 	Curse(user)
 	return
@@ -409,7 +412,7 @@
 		user.update_blindness()
 		user.update_sight()
 		to_chat(user, span_warning("You were cursed by [src]!"))
-		addtimer(CALLBACK(src, .proc/RemoveCurse, user, type), 3 MINUTES)
+		addtimer(CALLBACK(src, PROC_REF(RemoveCurse), user, type), 3 MINUTES)
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/proc/RemoveCurse(mob/living/carbon/human/user, type)
 	REMOVE_TRAIT(user, type, GENETIC_MUTATION)
@@ -417,7 +420,7 @@
 	user.update_sight()
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/proc/SpawnChildren()
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "Seeing, hearing, and speaking evil are all deeds that I can consciously prevent myself from doing.", 25))
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "Seeing, hearing, and speaking evil are all deeds that I can consciously prevent myself from doing.", 25))
 	sound_to_playing_players_on_level('sound/abnormalities/crying_children/seperate.ogg', 50, zlevel = z)
 	var/list/teleport_potential = list()
 	for(var/turf/T in GLOB.department_centers)
@@ -432,15 +435,15 @@
 
 	//I tried using subtype loop for this, but it ends a bit buggy
 	var/mob/living/simple_animal/hostile/child/unseeing/SE = new(teleport_target)
-	RegisterSignal(SE, COMSIG_LIVING_DEATH, .proc/DeadChild, SE)
+	RegisterSignal(SE, COMSIG_LIVING_DEATH, PROC_REF(DeadChild), SE)
 	teleport_potential -= teleport_target
 	teleport_target = pick(teleport_potential)
 	var/mob/living/simple_animal/hostile/child/unhearing/HE = new(teleport_target)
-	RegisterSignal(HE, COMSIG_LIVING_DEATH, .proc/DeadChild, HE)
+	RegisterSignal(HE, COMSIG_LIVING_DEATH, PROC_REF(DeadChild), HE)
 	teleport_potential -= teleport_target
 	teleport_target = pick(teleport_potential)
 	var/mob/living/simple_animal/hostile/child/unspeaking/PE = new(teleport_target)
-	RegisterSignal(PE, COMSIG_LIVING_DEATH, .proc/DeadChild, PE)
+	RegisterSignal(PE, COMSIG_LIVING_DEATH, PROC_REF(DeadChild), PE)
 	children_list = list(SE, HE, PE)
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/proc/DeadChild(mob/living/deadchild)
@@ -453,7 +456,7 @@
 		forceMove(T)
 
 /mob/living/simple_animal/hostile/abnormality/crying_children/proc/FinalPhase()
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "I don’t want to hear anything. I don’t want to see anything, or speak anything…", 25))
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "I don’t want to hear anything. I don’t want to see anything, or speak anything…", 25))
 	icon_phase = "desperation"
 	icon_living = "[icon_phase]_idle"
 	icon_state = "[icon_phase]_idle"
@@ -530,7 +533,7 @@
 		REMOVE_TRAIT(H, TRAIT_BLIND, GENETIC_MUTATION)
 		H.update_blindness()
 		H.update_sight()
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "The World Was Beautiful, Yet The Child Can't See It.", 25))
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "The World Was Beautiful, Yet The Child Can't See It.", 25))
 	..()
 
 // Unhearing
@@ -553,7 +556,7 @@
 /mob/living/simple_animal/hostile/child/unhearing/death(gibbed)
 	for(var/mob/living/carbon/human/H in deafened)
 		REMOVE_TRAIT(H, TRAIT_DEAF, GENETIC_MUTATION)
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "Words Of Love And Encouragement Was Spoken, Yet The Child Can't Hear Them.", 25))
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "Words Of Love And Encouragement Was Spoken, Yet The Child Can't Hear Them.", 25))
 	..()
 
 // Unspeaking
@@ -576,7 +579,7 @@
 /mob/living/simple_animal/hostile/child/unspeaking/death(gibbed)
 	for(var/mob/living/carbon/human/H in muted)
 		REMOVE_TRAIT(H, TRAIT_MUTE, GENETIC_MUTATION)
-	addtimer(CALLBACK(GLOBAL_PROC, .proc/show_global_blurb, 20, "His Mind, Full Of Pain And Suffering, Yet The Child Can't Tell A Soul.", 25))
+	addtimer(CALLBACK(GLOBAL_PROC, GLOBAL_PROC_REF(show_global_blurb), 20, "His Mind, Full Of Pain And Suffering, Yet The Child Can't Tell A Soul.", 25))
 	..()
 
 /obj/projectile/beam/sorrow_beam

@@ -126,10 +126,6 @@
 	},
 /turf/open/floor/facility/white,
 /area/facility_hallway/architecture)
-"bb" = (
-/obj/structure/chair/stool,
-/turf/closed/indestructible/rock,
-/area/space)
 "bd" = (
 /obj/structure/disposalpipe/segment{
 	dir = 4
@@ -137,14 +133,18 @@
 /turf/open/floor/facility/white,
 /area/department_main/command)
 "be" = (
+/obj/effect/turf_decal/tile/brown{
+	dir = 1
+	},
+/obj/effect/turf_decal/tile/brown,
 /obj/effect/turf_decal/siding/brown{
 	dir = 1
 	},
-/obj/machinery/light{
-	dir = 1
+/obj/machinery/camera/autoname{
+	dir = 5
 	},
 /turf/open/floor/plasteel,
-/area/facility_hallway/training)
+/area/department_main/training)
 "bh" = (
 /obj/structure/disposalpipe/segment{
 	dir = 5
@@ -2808,10 +2808,8 @@
 /turf/open/floor/plasteel/dark,
 /area/department_main/welfare)
 "sP" = (
-/obj/effect/turf_decal/siding/brown{
-	dir = 1
-	},
-/obj/machinery/camera/autoname,
+/obj/effect/turf_decal/siding/brown,
+/obj/machinery/light,
 /turf/open/floor/plasteel,
 /area/facility_hallway/training)
 "sQ" = (
@@ -3262,6 +3260,9 @@
 "vE" = (
 /obj/effect/turf_decal/siding/brown{
 	dir = 5
+	},
+/obj/machinery/camera/autoname{
+	dir = 9
 	},
 /turf/open/floor/plasteel,
 /area/facility_hallway/training)
@@ -3783,6 +3784,9 @@
 /obj/structure/sign/ordealmonitor{
 	pixel_y = 32
 	},
+/obj/machinery/light{
+	dir = 1
+	},
 /turf/open/floor/plasteel,
 /area/department_main/control)
 "yt" = (
@@ -4140,9 +4144,6 @@
 	},
 /turf/open/floor/facility/white,
 /area/department_main/command)
-"AW" = (
-/turf/closed/indestructible/rock,
-/area/facility_hallway/training)
 "AZ" = (
 /obj/effect/turf_decal/siding/purple/corner,
 /obj/effect/turf_decal/siding/purple/corner{
@@ -4188,6 +4189,12 @@
 	icon_state = "stairs-old"
 	},
 /area/department_main/training)
+"Bp" = (
+/obj/machinery/light{
+	dir = 8
+	},
+/turf/open/floor/carpet,
+/area/department_main/control)
 "Br" = (
 /obj/machinery/camera/autoname{
 	dir = 5
@@ -5019,6 +5026,9 @@
 	pixel_y = 32
 	},
 /obj/structure/table/reinforced,
+/obj/machinery/light{
+	dir = 1
+	},
 /turf/open/floor/plasteel,
 /area/department_main/control)
 "HB" = (
@@ -6106,6 +6116,9 @@
 /obj/effect/turf_decal/siding/brown{
 	dir = 8
 	},
+/obj/machinery/camera/autoname{
+	dir = 4
+	},
 /turf/open/floor/plasteel,
 /area/facility_hallway/training)
 "Oc" = (
@@ -7137,6 +7150,12 @@
 	},
 /turf/open/floor/plasteel,
 /area/facility_hallway/east)
+"Uv" = (
+/obj/machinery/light{
+	dir = 4
+	},
+/turf/open/floor/carpet,
+/area/department_main/control)
 "Uy" = (
 /turf/closed/indestructible/reinforced,
 /area/department_main/architecture)
@@ -29136,7 +29155,7 @@ SV
 Tg
 sB
 Fy
-xL
+sP
 Tg
 PD
 PD
@@ -29905,7 +29924,7 @@ Tg
 Tg
 Tg
 FP
-be
+sB
 Fy
 xL
 Tg
@@ -30162,7 +30181,7 @@ SV
 SV
 SV
 Tg
-sP
+sB
 Fy
 xL
 Tg
@@ -30678,7 +30697,7 @@ SV
 Tg
 sB
 Fy
-xL
+sP
 Tg
 PD
 PD
@@ -31706,7 +31725,7 @@ In
 JP
 Wm
 YP
-ry
+be
 WL
 rE
 ZQ
@@ -31942,7 +31961,7 @@ HD
 Vz
 iF
 We
-eH
+Bp
 XP
 EV
 tv
@@ -34512,7 +34531,7 @@ Rr
 Vz
 iF
 We
-eH
+Uv
 XZ
 DB
 tv
@@ -34539,7 +34558,7 @@ GU
 pb
 iW
 ZQ
-PD
+ZQ
 PD
 PD
 Tg
@@ -34798,7 +34817,7 @@ ZQ
 ZQ
 PD
 PD
-bb
+PD
 PD
 Tg
 Tg
@@ -35052,6 +35071,7 @@ Pm
 FY
 ZQ
 BH
+ZQ
 PD
 PD
 PD
@@ -35062,9 +35082,8 @@ PD
 PD
 PD
 PD
-AW
-AW
-AW
+PD
+PD
 Tg
 SV
 SV
@@ -35319,9 +35338,9 @@ PD
 PD
 PD
 PD
-AW
-AW
-AW
+PD
+PD
+PD
 Tg
 SV
 SV

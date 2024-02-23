@@ -5,6 +5,7 @@
 	icon = 'ModularTegustation/Teguicons/64x48.dmi'
 	icon_state = "current"
 	icon_living = "current"
+	portrait = "dreaming_current"
 	pixel_x = -16
 	base_pixel_x = -16
 
@@ -13,16 +14,16 @@
 	health = 2000
 	damage_coeff = list(RED_DAMAGE = 1.5, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 1, PALE_DAMAGE = 2)
 	stat_attack = HARD_CRIT
-	deathsound = 'sound/abnormalities/dreamingcurrent/dead.ogg'
+	death_sound = 'sound/abnormalities/dreamingcurrent/dead.ogg'
 
 	threat_level = WAW_LEVEL
 
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(50, 50, 60, 55, 55),
-						ABNORMALITY_WORK_INSIGHT = 0,
-						ABNORMALITY_WORK_ATTACHMENT = list(45, 45, 45, 50, 55),
-						ABNORMALITY_WORK_REPRESSION = 45
-						)
+		ABNORMALITY_WORK_INSTINCT = list(50, 50, 60, 55, 55),
+		ABNORMALITY_WORK_INSIGHT = 0,
+		ABNORMALITY_WORK_ATTACHMENT = list(45, 45, 45, 50, 55),
+		ABNORMALITY_WORK_REPRESSION = 45,
+	)
 	work_damage_amount = 10
 	work_damage_type = WHITE_DAMAGE
 
@@ -32,10 +33,14 @@
 
 	ego_list = list(
 		/datum/ego_datum/weapon/ecstasy,
-		/datum/ego_datum/armor/ecstasy
-		)
+		/datum/ego_datum/armor/ecstasy,
+	)
 	gift_type = /datum/ego_gifts/ecstasy
 	abnormality_origin = ABNORMALITY_ORIGIN_LOBOTOMY
+
+	grouped_abnos = list(
+		/mob/living/simple_animal/hostile/abnormality/siltcurrent = 2
+	)
 
 	var/list/movement_path = list()
 	var/list/been_hit = list()
@@ -126,7 +131,7 @@
 			break
 		var/list/our_path = list()
 		for(var/o = 1 to 3) // Grand total of 3 retries
-			our_path = get_path_to(path_start, T, /turf/proc/Distance_cardinal, dash_max_distance)
+			our_path = get_path_to(path_start, T, TYPE_PROC_REF(/turf, Distance_cardinal), dash_max_distance)
 			if(islist(our_path) && LAZYLEN(our_path))
 				break
 			potential_turfs -= T // Couldn't find path to it, don't try again
@@ -167,14 +172,23 @@
 		W.obj_destruction("teeth")
 	for(var/obj/machinery/door/D in T.contents)
 		if(D.density)
-			addtimer(CALLBACK (D, .obj/machinery/door/proc/open))
+			addtimer(CALLBACK (D, TYPE_PROC_REF(/obj/machinery/door, open)))
 	forceMove(T)
 	if(prob(33))
 		playsound(T, "sound/abnormalities/dreamingcurrent/move.ogg", 10, TRUE, 3)
 	for(var/turf/TF in view(1, T))
 		var/obj/effect/temp_visual/small_smoke/halfsecond/S = new(TF)
-		var/list/potential_colors = list(COLOR_LIGHT_GRAYISH_RED, COLOR_SOFT_RED, COLOR_YELLOW, \
-			COLOR_VIBRANT_LIME, COLOR_GREEN, COLOR_CYAN, COLOR_BLUE, COLOR_PINK, COLOR_PURPLE)
+		var/list/potential_colors = list(
+			COLOR_LIGHT_GRAYISH_RED,
+			COLOR_SOFT_RED,
+			COLOR_YELLOW,
+			COLOR_VIBRANT_LIME,
+			COLOR_GREEN,
+			COLOR_CYAN,
+			COLOR_BLUE,
+			COLOR_PINK,
+			COLOR_PURPLE,
+		)
 		S.add_atom_colour(pick(potential_colors), FIXED_COLOUR_PRIORITY)
 		var/list/new_hits = HurtInTurf(TF, been_hit, dash_damage, RED_DAMAGE, check_faction = TRUE, hurt_mechs = TRUE) - been_hit
 		been_hit += new_hits
@@ -191,11 +205,12 @@
 	return
 
 /mob/living/simple_animal/hostile/abnormality/dreaming_current/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-1)
 	return
 
-/mob/living/simple_animal/hostile/abnormality/dreaming_current/BreachEffect(mob/living/carbon/human/user)
-	..()
+/mob/living/simple_animal/hostile/abnormality/dreaming_current/BreachEffect(mob/living/carbon/human/user, breach_type)
+	. = ..()
 	ADD_TRAIT(src, TRAIT_MOVE_FLYING, ROUNDSTART_TRAIT) // Floating
 	if(!alt_icon)
 		icon_living = "current_breach"

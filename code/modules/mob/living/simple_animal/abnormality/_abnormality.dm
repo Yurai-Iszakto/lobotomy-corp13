@@ -42,11 +42,11 @@
 	var/small_sprite_type = /datum/action/small_sprite/abnormality
 	/// Work types and chances
 	var/list/work_chances = list(
-							ABNORMALITY_WORK_INSTINCT = list(50, 55, 60, 65, 70),
-							ABNORMALITY_WORK_INSIGHT = list(50, 55, 60, 65, 70),
-							ABNORMALITY_WORK_ATTACHMENT = list(50, 55, 60, 65, 70),
-							ABNORMALITY_WORK_REPRESSION = list(50, 55, 60, 65, 70)
-							)
+		ABNORMALITY_WORK_INSTINCT = list(50, 55, 60, 65, 70),
+		ABNORMALITY_WORK_INSIGHT = list(50, 55, 60, 65, 70),
+		ABNORMALITY_WORK_ATTACHMENT = list(50, 55, 60, 65, 70),
+		ABNORMALITY_WORK_REPRESSION = list(50, 55, 60, 65, 70),
+	)
 	/// Work Types and corresponding their attributes
 	var/list/work_attribute_types = WORK_TO_ATTRIBUTE
 	/// How much damage is dealt to user on each work failure
@@ -78,10 +78,18 @@
 	var/harvest_phrase = span_notice("You harvest... something... into %VESSEL.")
 	var/harvest_phrase_third = "%PERSON harvests... something... into %VESSEL."
 	// Dummy chemicals - called if chem_type is null.
-	var/list/dummy_chems = list(/datum/reagent/abnormality/nutrition, /datum/reagent/abnormality/cleanliness, /datum/reagent/abnormality/consensus, /datum/reagent/abnormality/amusement, /datum/reagent/abnormality/violence)
+	var/list/dummy_chems = list(
+		/datum/reagent/abnormality/nutrition,
+		/datum/reagent/abnormality/cleanliness,
+		/datum/reagent/abnormality/consensus,
+		/datum/reagent/abnormality/amusement,
+		/datum/reagent/abnormality/violence,
+	)
 	// Increased Abno appearance chance
 	/// Assoc list, you do [path] = [probability_multiplier] for each entry
 	var/list/grouped_abnos = list()
+	//Abnormaltiy portrait, updated on spawn if they have one.
+	var/portrait = "UNKNOWN"
 
 /mob/living/simple_animal/hostile/abnormality/Initialize(mapload)
 	SHOULD_CALL_PARENT(TRUE)
@@ -121,7 +129,7 @@
 	SHOULD_CALL_PARENT(TRUE)
 	if(istype(datum_reference)) // Respawn the mob on death
 		datum_reference.current = null
-		addtimer(CALLBACK (datum_reference, .datum/abnormality/proc/RespawnAbno), 30 SECONDS)
+		addtimer(CALLBACK (datum_reference, TYPE_PROC_REF(/datum/abnormality, RespawnAbno)), 30 SECONDS)
 	..()
 	if(loc)
 		if(isarea(loc))
@@ -253,13 +261,40 @@
 		"2" = list("There's no room for error here.", "My legs are trembling...", "Damn, it's scary."),
 		"3" = list("GODDAMN IT!!!!", "H-Help...", "I don't want to die!"),
 		"4" = list("What am I seeing...?", "I-I can't take it...", "I can't understand..."),
-		"5" = list("......")
-		)
+		"5" = list("......"),
+	)
 	return pick(result_text_list[level])
 
 // Called by datum_reference when the abnormality has been fully spawned
 /mob/living/simple_animal/hostile/abnormality/proc/PostSpawn()
+	SHOULD_CALL_PARENT(TRUE)
+	HandleStructures()
 	return
+
+// Moves structures already in its datum; Overrides can spawn structures here.
+/mob/living/simple_animal/hostile/abnormality/proc/HandleStructures()
+	SHOULD_CALL_PARENT(TRUE)
+	if(!datum_reference)
+		return FALSE
+	// Ensures all structures are in their place after respawning
+	for(var/atom/movable/A in datum_reference.connected_structures)
+		A.forceMove(get_turf(datum_reference.landmark))
+		A.x += datum_reference.connected_structures[A][1]
+		A.y += datum_reference.connected_structures[A][2]
+	return TRUE
+
+// A little helper proc to spawn structures; Returns itself, so you can handle additional stuff later
+/mob/living/simple_animal/hostile/abnormality/proc/SpawnConnectedStructure(atom/movable/A = null, x_offset = 0, y_offset = 0)
+	if(!ispath(A))
+		return
+	if(!istype(datum_reference))
+		return
+	A = new A(get_turf(src))
+	A.x += x_offset
+	A.y += y_offset
+	// We put it in datum ref for malicious purposes
+	datum_reference.connected_structures[A] = list(x_offset, y_offset)
+	return A
 
 // transfers a var to the datum to be used later
 /mob/living/simple_animal/hostile/abnormality/proc/TransferVar(index, value)
@@ -272,7 +307,6 @@
 	if(isnull(datum_reference))
 		return
 	return LAZYACCESS(datum_reference.transferable_var, index)
-
 
 // Modifiers for work chance
 /mob/living/simple_animal/hostile/abnormality/proc/WorkChance(mob/living/carbon/human/user, chance, work_type)
@@ -297,14 +331,24 @@
 
 // Additional effects on good work result, if any
 /mob/living/simple_animal/hostile/abnormality/proc/SuccessEffect(mob/living/carbon/human/user, work_type, pe, work_time, canceled)
+	WorkCompleteEffect("good")
 	return
 
 // Additional effects on neutral work result, if any
 /mob/living/simple_animal/hostile/abnormality/proc/NeutralEffect(mob/living/carbon/human/user, work_type, pe, work_time, canceled)
+	WorkCompleteEffect("normal")
 	return
 
 // Additional effects on work failure
 /mob/living/simple_animal/hostile/abnormality/proc/FailureEffect(mob/living/carbon/human/user, work_type, pe, work_time, canceled)
+	WorkCompleteEffect("bad")
+	return
+
+// Visual effect for work completion
+/mob/living/simple_animal/hostile/abnormality/proc/WorkCompleteEffect(state)
+	var/turf/target_turf = get_ranged_target_turf(src, SOUTHWEST, 1)
+	var/obj/effect/temp_visual/workcomplete/VFX = new(target_turf)
+	VFX.icon_state = state
 	return
 
 // Giving an EGO gift to the user after work is complete
@@ -333,6 +377,14 @@
 // Additional effect on each individual work tick failure
 /mob/living/simple_animal/hostile/abnormality/proc/WorktickFailure(mob/living/carbon/human/user)
 	user.apply_damage(work_damage_amount, work_damage_type, null, user.run_armor_check(null, work_damage_type), spread_damage = TRUE)
+	WorkDamageEffect()
+	return
+
+// Visual effect for work damage
+/mob/living/simple_animal/hostile/abnormality/proc/WorkDamageEffect()
+	var/turf/target_turf = get_ranged_target_turf(src, SOUTHWEST, 1)
+	var/obj/effect/temp_visual/roomdamage/damage = new(target_turf)
+	damage.icon_state = "[work_damage_type]"
 	return
 
 // Dictates whereas this type of work can be performed at the moment or not
@@ -357,10 +409,15 @@
 
 // Special breach effect for abnormalities with can_breach set to TRUE
 /mob/living/simple_animal/hostile/abnormality/proc/BreachEffect(mob/living/carbon/human/user, breach_type = BREACH_NORMAL)
+	if(breach_type != BREACH_NORMAL && !can_breach)
+		// If a custom breach is called and the mob has no way of handling it, just ignore it.
+		// Should follow normal behaviour with ..()
+		return FALSE
 	toggle_ai(AI_ON) // Run.
 	status_flags &= ~GODMODE
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_ABNORMALITY_BREACH, src)
 	FearEffect()
+	return TRUE
 
 // On lobotomy_corp subsystem qliphoth event
 /mob/living/simple_animal/hostile/abnormality/proc/OnQliphothEvent()
@@ -394,6 +451,9 @@
 
 /mob/living/simple_animal/hostile/abnormality/proc/GetRiskLevel()
 	return threat_level
+
+/mob/living/simple_animal/hostile/abnormality/proc/GetPortrait()
+	return portrait
 
 // Actions
 /datum/action/innate/abnormality_attack

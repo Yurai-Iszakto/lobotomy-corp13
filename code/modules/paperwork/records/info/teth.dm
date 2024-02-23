@@ -51,10 +51,11 @@
 	abno_type = /mob/living/simple_animal/hostile/abnormality/dingledangle
 	abno_code = "T-04-111"
 	abno_info = list(
-		"When employees with Prudence Level 3 or higher completed their work, they were immediately consumed by Dingle-Dangle, unless their Fortitude was Level 4 or above.",
-		"When employees with Prudence Level 2 or lower completed work with Dingle-Dangle, the Qliphoth counter lowered.",
-		"When employees with Prudence Level 2 or lower completed work with Dingle-Dangle, they reported heightend combat abilities.",
-		"When the work result was Bad, the employee was consumed by Dingle-Dangle with a normal probability.")
+		"When the work result was Bad, the employee was immediately consumed by Dingle-Dangle with a normal probability.",
+		"When employees with Prudence Level 3 or higher completed their work, they were consumed by Dingle-Dangle unless their Fortitude was Level 4 or higher.",
+		"When employees with Prudence Level 2 or lower completed their work with Dingle-Dangle, the Qliphoth Counter decreased.",
+		"These employees reported a sense of confusion as well heightened combat capabilities.",
+		"When the Qliphoth Counter reached 0, everyone in the facility was afflicted with delirium.")
 
 //Beauty and the Beast
 /obj/item/paper/fluff/info/teth/beauty
@@ -240,6 +241,8 @@
 		"When work was performed, the employee felt compelled to write in the book regardless of result.",
 		"Employees suffered from higher amounts of damage during work when the book was closer to completion.",
 		"Upon finishing repression work, employee Noah felt compelled to rip pages out of the abnormality.",
+		"When the abnormality was not full of words when pages were torn out, the torn pages twisted into hostile forms and attacked nearby employees.",
+		"When the abnormality was full of words when pages were torn out, the torn pages became friendly creatures instead.",
 		"Attempted repression work when the book was already empty nearly always ended in failure. In constrast, repression work performed when the book was full was usually successful.")
 
 //Someone's Portrait
@@ -344,3 +347,13 @@
 		"When Attachment or Repression work was done, the work rates were equal to the total stat buffs of the employee.",
 		"When Attachment or Repression work was completed with a good work result, the employee's respective buff was reduced to 0, and their stat maximum was increased by the same amount.",)
 
+//Faelantern
+/obj/item/paper/fluff/info/teth/faelantern
+	abno_type = /mob/living/simple_animal/hostile/abnormality/faelantern
+	abno_code = "F-01-178"
+	abno_info = list(
+		"When the work result was Bad, the Qliphoth Counter lowered.",
+		"When an Agent with Temperance Level 2 or greater completed repression work, the Qliphoth Counter lowered",
+		"When an Agent with Level 1 Temperance completed any other work type, the Qliphoth Counter lowered",
+		"When approached during suppression work, F-01-178 attempted to lure agents with Temperance I.",
+		"During work, the final result of any modified attributes were recognized by Faelantern.")

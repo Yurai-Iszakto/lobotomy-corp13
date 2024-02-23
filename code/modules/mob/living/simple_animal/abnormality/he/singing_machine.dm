@@ -9,6 +9,7 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 	icon = 'ModularTegustation/Teguicons/48x48.dmi'
 	icon_state = "singingmachine_closed_clean"
 	icon_living = "singingmachine_closed_clean"
+	portrait = "singing_machine"
 	maxHealth = 200
 	health = 200
 	threat_level = HE_LEVEL
@@ -17,7 +18,7 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 		ABNORMALITY_WORK_INSTINCT = list(60, 60, 65, 65, 70),
 		ABNORMALITY_WORK_INSIGHT = 50,
 		ABNORMALITY_WORK_ATTACHMENT = 0,
-		ABNORMALITY_WORK_REPRESSION = 40
+		ABNORMALITY_WORK_REPRESSION = 40,
 	)
 	// Adjusted the work chances a little to really funnel people through Instinct work. You can do other stuff... sort of.
 	work_damage_amount = 12
@@ -25,8 +26,8 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 	ego_list = list(
 		/datum/ego_datum/weapon/harmony,
 		/datum/ego_datum/weapon/rhythm,
-		/datum/ego_datum/armor/harmony
-		)
+		/datum/ego_datum/armor/harmony,
+	)
 	gift_type = /datum/ego_gifts/harmony
 	abnormality_origin = ABNORMALITY_ORIGIN_ALTERED
 
@@ -102,10 +103,11 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 		musicalAddicts |= user
 		user.apply_status_effect(STATUS_EFFECT_MUSIC) // Time to addict them.
 		SEND_SOUND(user, 'sound/abnormalities/singingmachine/addiction.ogg')
-		addtimer(CALLBACK(src, .proc/removeAddict, user), 5 MINUTES)
+		addtimer(CALLBACK(src, PROC_REF(removeAddict), user), 5 MINUTES)
 	return
 
 /mob/living/simple_animal/hostile/abnormality/singing_machine/SuccessEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(datum_reference.qliphoth_meter == 0) // You did it! You survived a work at 0 qliphoth!
 		manual_emote("rests silent once more...") // The machine is now dormant.
 		playsound(src, 'sound/abnormalities/singingmachine/creak.ogg', 50, 0, 1)
@@ -162,7 +164,7 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 	datum_reference.qliphoth_change(2)
 	grindNoise = new(list(src), TRUE)
 	musicNoise = new(list(src), TRUE)
-	addtimer(CALLBACK(src, .proc/stopPlaying), playLength) // This is the callback from earlier.
+	addtimer(CALLBACK(src, PROC_REF(stopPlaying)), playLength) // This is the callback from earlier.
 
 /mob/living/simple_animal/hostile/abnormality/singing_machine/proc/driveInsane(list/addicts)
 	if(LAZYLEN(addicts))
@@ -180,11 +182,11 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 /datum/ai_behavior/say_line/insanity_singing_machine
 	lines = list(
 		"A corpse, I need a corpse...",
-		"I’ll listen to that song at any cost.",
-		"Don’t struggle, you’ll love its melodies too.",
-		"I’m sorry, but I have to hear that song again.",
-		"Now, I am reborn."
-		)
+		"I'll listen to that song at any cost.",
+		"Don't struggle, you'll love its melodies too.",
+		"I'm sorry, but I have to hear that song again.",
+		"Now, I am reborn.",
+	)
 
 /datum/status_effect/display/singing_machine
 	id = "music"
@@ -205,12 +207,13 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 
 /datum/status_effect/display/singing_machine/on_apply()
 	. = ..()
-	if(ishuman(owner))
-		var/mob/living/carbon/human/H = owner
-		H.adjust_attribute_bonus(FORTITUDE_ATTRIBUTE, -5)
-		H.adjust_attribute_bonus(PRUDENCE_ATTRIBUTE, -5)
-		H.adjust_attribute_bonus(JUSTICE_ATTRIBUTE, 10)
-		H.physiology.white_mod *= 1.1
+	if(!ishuman(owner))
+		return
+	var/mob/living/carbon/human/status_holder = owner
+	status_holder.adjust_attribute_bonus(FORTITUDE_ATTRIBUTE, -5)
+	status_holder.adjust_attribute_bonus(PRUDENCE_ATTRIBUTE, -5)
+	status_holder.adjust_attribute_bonus(JUSTICE_ATTRIBUTE, 10)
+	status_holder.physiology.white_mod *= 1.1
 
 /datum/status_effect/display/singing_machine/tick()
 	if(world.time % addictionTick == 0 && ishuman(owner)) // Give or take one, this will fire off as many times as if I set up a proper timer variable.
@@ -219,11 +222,12 @@ Finally, an abnormality that DOESN'T have to do any fancy movement shit. It's a 
 
 /datum/status_effect/display/singing_machine/on_remove()
 	. = ..()
-	if(ishuman(owner))
-		var/mob/living/carbon/human/H = owner
-		H.adjust_attribute_bonus(FORTITUDE_ATTRIBUTE, 5)
-		H.adjust_attribute_bonus(PRUDENCE_ATTRIBUTE, 5)
-		H.adjust_attribute_bonus(JUSTICE_ATTRIBUTE, -10)
-		H.physiology.white_mod /= 1.1
+	if(!ishuman(owner))
+		return
+	var/mob/living/carbon/human/status_holder = owner
+	status_holder.adjust_attribute_bonus(FORTITUDE_ATTRIBUTE, 5)
+	status_holder.adjust_attribute_bonus(PRUDENCE_ATTRIBUTE, 5)
+	status_holder.adjust_attribute_bonus(JUSTICE_ATTRIBUTE, -10)
+	status_holder.physiology.white_mod /= 1.1
 
 #undef STATUS_EFFECT_MUSIC

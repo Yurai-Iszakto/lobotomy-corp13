@@ -29,7 +29,7 @@
 
 /obj/projectile/ego_bullet/ego_galaxy/homing/Initialize()
 	. = ..()
-	addtimer(CALLBACK(src, .proc/fireback), 3)
+	addtimer(CALLBACK(src, PROC_REF(fireback)), 3)
 
 /obj/projectile/ego_bullet/ego_galaxy/homing/proc/fireback()
 	icon_state = "magich"
@@ -61,19 +61,16 @@
 	speed = 1.3
 	projectile_piercing = PASSMOB
 	ricochets_max = 3
-	ricochet_chance = 99999999 // JUST FUCKING DO IT
+	ricochet_chance = 100 // JUST FUCKING DO IT
 	ricochet_decay_chance = 1
-	ricochet_decay_damage = 1.5
+	ricochet_decay_damage = 1.5 // Does MORE per bounce
 	ricochet_auto_aim_range = 3
-	ricochet_incidence_leeway = 360
+	ricochet_incidence_leeway = 0
 
 /obj/projectile/ego_bullet/ego_harmony/check_ricochet_flag(atom/A)
 	if(istype(A, /turf/closed))
 		return TRUE
 	return FALSE
-
-/obj/projectile/ego_bullet/ego_harmony/check_ricochet(atom/A)
-	return TRUE
 
 /obj/projectile/ego_bullet/ego_song
 	name = "song"
@@ -108,10 +105,12 @@
 
 /obj/projectile/ego_bullet/replica/on_hit(atom/target, blocked = FALSE)
 	. = ..()
-	var/mob/living/carbon/human/H = target
+	if(!isliving(target))
+		return
+	var/mob/living/T = target
 	var/mob/living/user = firer
-	if(user.faction_check_mob(H))//player faction
-		H.Knockdown(50)//trip the target
+	if(user.faction_check_mob(T))//player faction
+		T.Knockdown(50)//trip the target
 		return BULLET_ACT_BLOCK
 	qdel(src)
 

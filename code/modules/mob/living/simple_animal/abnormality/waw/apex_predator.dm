@@ -30,18 +30,18 @@
 	threat_level = WAW_LEVEL
 	start_qliphoth = 2
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(0, 0, 35, 40, 45),
-						ABNORMALITY_WORK_INSIGHT = list(0, 0, 35, 40, 45),
-						ABNORMALITY_WORK_ATTACHMENT = list(25, 20, 15, 10, 0),
-						ABNORMALITY_WORK_REPRESSION = list(0, 0, 50, 55, 55)
-						)
+		ABNORMALITY_WORK_INSTINCT = list(0, 0, 35, 40, 45),
+		ABNORMALITY_WORK_INSIGHT = list(0, 0, 35, 40, 45),
+		ABNORMALITY_WORK_ATTACHMENT = list(25, 20, 15, 10, 0),
+		ABNORMALITY_WORK_REPRESSION = list(0, 0, 50, 55, 55),
+	)
 	work_damage_amount = 10
 	work_damage_type = RED_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/animalism,
-		/datum/ego_datum/armor/animalism
-		)
+		/datum/ego_datum/armor/animalism,
+	)
 //	gift_type =  /datum/ego_gifts/animalism
 
 	var/revealed = TRUE
@@ -65,11 +65,13 @@
 
 
 /mob/living/simple_animal/hostile/abnormality/apex_predator/NeutralEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(prob(40))
 		datum_reference.qliphoth_change(-1)
 	return
 
 /mob/living/simple_animal/hostile/abnormality/apex_predator/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-1)
 	return
 
@@ -85,8 +87,8 @@
 	work_damage_amount = initial(work_damage_amount)
 	return
 
-/mob/living/simple_animal/hostile/abnormality/apex_predator/BreachEffect(mob/living/carbon/human/user)
-	..()
+/mob/living/simple_animal/hostile/abnormality/apex_predator/BreachEffect(mob/living/carbon/human/user, breach_type)
+	. = ..()
 	Cloak()
 	GiveTarget(user)
 
@@ -151,7 +153,7 @@
 	jumping = TRUE
 	busy = TRUE
 	icon_state = "apex_crouch"
-	addtimer(CALLBACK(src, .proc/Leap), 5)
+	addtimer(CALLBACK(src, PROC_REF(Leap)), 5)
 
 /mob/living/simple_animal/hostile/abnormality/apex_predator/proc/Leap()
 	density = FALSE
@@ -160,7 +162,7 @@
 	throw_at(target_turf, 7, 1, src, FALSE)
 	icon_state = "apex_leap"
 
-	addtimer(CALLBACK(src, .proc/Slam), 10)
+	addtimer(CALLBACK(src, PROC_REF(Slam)), 10)
 
 /mob/living/simple_animal/hostile/abnormality/apex_predator/proc/Slam()
 	icon_state = "apex_crouch"
@@ -173,7 +175,7 @@
 		if(L.stat == DEAD)
 			continue
 		L.apply_damage(jump_damage, RED_DAMAGE, null, L.run_armor_check(null, RED_DAMAGE), spread_damage = TRUE)
-	addtimer(CALLBACK(src, .proc/Reset), 12)
+	addtimer(CALLBACK(src, PROC_REF(Reset)), 12)
 
 /mob/living/simple_animal/hostile/abnormality/apex_predator/proc/Reset()
 	density = TRUE

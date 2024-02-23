@@ -17,7 +17,7 @@
 	attack_verb_continuous = "bashes"
 	attack_verb_simple = "bashes"
 	attack_sound = 'sound/abnormalities/ebonyqueen/attack.ogg'
-	deathsound = 'sound/creatures/venus_trap_death.ogg'
+	death_sound = 'sound/creatures/venus_trap_death.ogg'
 	damage_coeff = list(RED_DAMAGE = 1, WHITE_DAMAGE = 1, BLACK_DAMAGE = 0.8, PALE_DAMAGE = 2)
 	butcher_results = list(/obj/item/food/meat/slab/human/mutant/plant = 1, /obj/item/food/meat/slab/human = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human/mutant/plant = 1)
@@ -45,7 +45,7 @@
 	attack_verb_continuous = "bashes"
 	attack_verb_simple = "bashes"
 	attack_sound = 'sound/effects/ordeals/gold/rock_attack.ogg'
-	deathsound = 'sound/effects/ordeals/gold/rock_dead.ogg'
+	death_sound = 'sound/effects/ordeals/gold/rock_dead.ogg'
 	damage_coeff = list(RED_DAMAGE = 1, WHITE_DAMAGE = 1, BLACK_DAMAGE = 1, PALE_DAMAGE = 2)
 	butcher_results = list(/obj/item/food/meat/slab/human/mutant/golem = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human/mutant/golem = 1)
@@ -131,7 +131,7 @@
 			break
 		var/list/our_path = list()
 		for(var/o = 1 to 3) // Grand total of 3 retries
-			our_path = get_path_to(path_start, T, /turf/proc/Distance_cardinal, charge_max_distance)
+			our_path = get_path_to(path_start, T, TYPE_PROC_REF(/turf, Distance_cardinal), charge_max_distance)
 			if(islist(our_path) && LAZYLEN(our_path))
 				break
 			potential_turfs -= T // Couldn't find path to it, don't try again
@@ -169,7 +169,7 @@
 		W.obj_destruction("teeth")
 	for(var/obj/machinery/door/D in T.contents)
 		if(D.density)
-			addtimer(CALLBACK (D, .obj/machinery/door/proc/open))
+			addtimer(CALLBACK (D, TYPE_PROC_REF(/obj/machinery/door, open)))
 	forceMove(T)
 	if(prob(33))
 		playsound(T, 'sound/effects/ordeals/gold/rock_attack.ogg', 10, TRUE, 3)
@@ -179,7 +179,7 @@
 			if(!faction_check_mob(L))
 				if(L in been_hit)
 					continue
-				L.visible_message("<span class='warning'>[src] rams [L]!</span>", "<span class='boldwarning'>[src] rams into you!</span>")
+				L.visible_message(span_warning("[src] rams [L]!"), span_boldwarning("[src] rams into you!"))
 				L.apply_damage(charge_damage, RED_DAMAGE, null, L.run_armor_check(null, RED_DAMAGE), spread_damage = TRUE)
 				new /obj/effect/temp_visual/cleave(get_turf(L))
 				playsound(L, 'sound/effects/ordeals/gold/rock_kill.ogg', 50, TRUE)
@@ -208,7 +208,7 @@
 	attack_verb_continuous = "bites"
 	attack_verb_simple = "bite"
 	attack_sound = 'sound/effects/ordeals/gold/flower_attack.ogg'
-	deathsound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
+	death_sound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 1, WHITE_DAMAGE = 1, BLACK_DAMAGE = 1, PALE_DAMAGE = 2)
 	butcher_results = list(/obj/item/food/meat/slab/human/mutant/plant = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human/mutant/plant = 1)
@@ -228,8 +228,8 @@
 	if(!L)
 		return
 	visible_message(
-		"<span class='danger'>[src] devours [L]!</span>",
-		"<span class='userdanger'>You feast on [L], restoring your health!</span>")
+		span_danger("[src] devours [L]!"),
+		span_userdanger("You feast on [L], restoring your health!"))
 	adjustBruteLoss(-(maxHealth/2))
 	playsound(get_turf(L), 'sound/effects/ordeals/gold/flower_kill.ogg', 50, 4)
 	if(iscarbon(L))
@@ -262,7 +262,7 @@
 	attack_verb_continuous = "bisects"
 	attack_verb_simple = "bisects"
 	attack_sound = 'sound/weapons/fixer/generic/blade3.ogg'
-	deathsound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
+	death_sound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.8, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 1.5, PALE_DAMAGE = 1)
 	butcher_results = list(/obj/item/food/meat/slab/chicken = 1, /obj/item/food/meat/slab/human = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/chicken = 1)
@@ -403,14 +403,14 @@
 	can_act = TRUE
 
 /mob/living/simple_animal/hostile/ordeal/white_lake_corrosion/bullet_act(obj/projectile/P)
-	visible_message("<span class='userdanger'>[P] is easily deflected by [src]!</span>")
+	visible_message(span_userdanger("[P] is easily deflected by [src]!"))
 	P.Destroy()
 	return
 
 /mob/living/simple_animal/hostile/ordeal/white_lake_corrosion/attacked_by(obj/item/I, mob/living/user)
 	var/checkdir = check_target_facings(user, src)
 	if((get_dist(user, src) > 1) || checkdir == FACING_EACHOTHER)
-		user.visible_message("<span class='danger'>[user]'s attack is easily deflected by [src]!</span>", "<span class='userdanger'>Your attack is easily deflected by [src]!</span>")
+		user.visible_message(span_danger("[user]'s attack is easily deflected by [src]!"), span_userdanger("Your attack is easily deflected by [src]!"))
 		return
 	return ..()
 
@@ -453,7 +453,7 @@
 	attack_verb_continuous = "bashes"
 	attack_verb_simple = "bashes"
 	attack_sound = 'sound/effects/ordeals/gold/flea_attack.ogg'
-	deathsound = 'sound/effects/ordeals/gold/flea_dead.ogg'
+	death_sound = 'sound/effects/ordeals/gold/flea_dead.ogg'
 	damage_coeff = list(RED_DAMAGE = 2, WHITE_DAMAGE = 0.8, BLACK_DAMAGE = 0.8, PALE_DAMAGE = 1)
 	butcher_results = list(/obj/item/food/meat/slab/human/mutant/slime = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human/mutant/slime = 1)
@@ -467,13 +467,13 @@
 	if(health <= maxHealth*0.5 && stat != DEAD)
 		walk_to(src, 0)
 		animate(src, transform = matrix()*1.8, time = 15)
-		addtimer(CALLBACK(src, .proc/DeathExplosion), 15)
+		addtimer(CALLBACK(src, PROC_REF(DeathExplosion)), 15)
 	..()
 
 /mob/living/simple_animal/hostile/ordeal/sin_gloom/proc/DeathExplosion()
 	if(QDELETED(src))
 		return
-	visible_message("<span class='danger'>[src] suddenly explodes!</span>")
+	visible_message(span_danger("[src] suddenly explodes!"))
 	playsound(loc, 'sound/effects/ordeals/gold/tentacle_explode.ogg', 60, TRUE)
 	new /obj/effect/temp_visual/explosion(get_turf(src))
 	for(var/mob/living/L in viewers(2, src))
@@ -500,7 +500,7 @@
 	attack_verb_continuous = "slashes"
 	attack_verb_simple = "slash"
 	attack_sound = 'sound/weapons/ego/sword1.ogg'
-	deathsound = 'sound/effects/ordeals/gold/dead_generic.ogg'
+	death_sound = 'sound/effects/ordeals/gold/dead_generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.8, WHITE_DAMAGE = 2, BLACK_DAMAGE = 0.8, PALE_DAMAGE = 1)
 	butcher_results = list(/obj/item/food/meat/rawcrab = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/rawcrab = 1)
@@ -550,7 +550,7 @@
 	been_hit = list()
 	SpinAnimation(3, 10)
 	dash_num = (get_dist(src, target) + 3)
-	addtimer(CALLBACK(src, .proc/Charge, dir_to_target, 0), 2 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(Charge), dir_to_target, 0), 2 SECONDS)
 	playsound(src, 'sound/effects/ordeals/gold/pridespin.ogg', 125, FALSE)
 
 /mob/living/simple_animal/hostile/ordeal/sin_pride/proc/Charge(move_dir, times_ran)
@@ -587,7 +587,7 @@
 			continue
 		if(L.z != z)
 			continue
-		L.visible_message("<span class='warning'>[src] shreds [L] as it passes by!</span>", "<span class='boldwarning'>[src] shreds you!</span>")
+		L.visible_message(span_warning("[src] shreds [L] as it passes by!"), span_boldwarning("[src] shreds you!"))
 		var/turf/LT = get_turf(L)
 		new /obj/effect/temp_visual/kinetic_blast(LT)
 		L.apply_damage(150, RED_DAMAGE, null, L.run_armor_check(null, RED_DAMAGE), spread_damage = TRUE)
@@ -599,7 +599,7 @@
 		if(H.health < 0)
 			H.gib()
 			playsound(src, 'sound/weapons/fixer/generic/blade4.ogg', 75, 1)
-	addtimer(CALLBACK(src, .proc/Charge, move_dir, (times_ran + 1)), 1)
+	addtimer(CALLBACK(src, PROC_REF(Charge), move_dir, (times_ran + 1)), 1)
 
 
 /mob/living/simple_animal/hostile/ordeal/thunderbird_corrosion
@@ -618,7 +618,7 @@
 	attack_verb_continuous = "chops"
 	attack_verb_simple = "chop"
 	attack_sound = 'sound/abnormalities/thunderbird/tbird_zombieattack.ogg'
-	deathsound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
+	death_sound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.8, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 1, PALE_DAMAGE = 0.7)
 	butcher_results = list(/obj/item/food/meat/slab/chicken = 1, /obj/item/food/meat/slab/human = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human = 1)
@@ -637,7 +637,7 @@
 	if(charged)
 		L.apply_damage(15, BLACK_DAMAGE, null, L.run_armor_check(null, BLACK_DAMAGE))
 		playsound(get_turf(src), 'sound/weapons/fixer/generic/energyfinisher1.ogg', 75, 1)
-		to_chat(L,"<span class='danger'>The [src] unleashes its charge!</span>")
+		to_chat(L,span_danger("The [src] unleashes its charge!"))
 		charged = FALSE
 	if(!ishuman(target))
 		return
@@ -682,7 +682,7 @@
 	attack_verb_continuous = "shocks"
 	attack_verb_simple = "shock"
 	attack_sound = 'sound/abnormalities/thunderbird/tbird_peck.ogg'
-	deathsound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
+	death_sound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.8, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 1, PALE_DAMAGE = 0.7)
 	butcher_results = list(/obj/item/food/meat/slab/robot = 1, /obj/item/food/meat/slab/human = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human = 1)
@@ -708,8 +708,8 @@
 				continue
 			if(T.density)
 				continue
-			addtimer(CALLBACK(src, .proc/PulseWarn, T), (3 * (i+1)) + 0.1 SECONDS)
-			addtimer(CALLBACK(src, .proc/PulseHit, T), (3 * (i+1)) + 0.5 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(PulseWarn), T), (3 * (i+1)) + 0.1 SECONDS)
+			addtimer(CALLBACK(src, PROC_REF(PulseHit), T), (3 * (i+1)) + 0.5 SECONDS)
 
 /mob/living/simple_animal/hostile/ordeal/KHz_corrosion/proc/PulseWarn(turf/T)
 	new /obj/effect/temp_visual/cult/sparks(T)
@@ -722,7 +722,7 @@
 			continue
 		TB.charged = TRUE
 		playsound(get_turf(TB), 'sound/weapons/fixer/generic/energy3.ogg', 75, FALSE, 3)
-		TB.visible_message("<span class='warning'>[TB] absorbs the arcing electricity!</span>")
+		TB.visible_message(span_warning("[TB] absorbs the arcing electricity!"))
 
 
 //Gold Midnight //todo: add inquisitor corrosions
@@ -744,7 +744,7 @@
 	attack_verb_continuous = "stabs"
 	attack_verb_simple = "stab"
 	attack_sound = 'sound/effects/ordeals/gold/tentacle_attack.ogg'
-	deathsound = 'sound/effects/ordeals/gold/dead_generic.ogg'
+	death_sound = 'sound/effects/ordeals/gold/dead_generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.3, WHITE_DAMAGE = 0.7, BLACK_DAMAGE = 0.7, PALE_DAMAGE = 1.5)
 	butcher_results = list(/obj/item/food/carpmeat/icantbeliveitsnotcarp = 1)
 	guaranteed_butcher_results = list(/obj/item/food/carpmeat/icantbeliveitsnotcarp = 1) //should make its own kind of meat when I get around to it
@@ -756,10 +756,10 @@
 	var/mob/living/carbon/human/H = target
 	var/datum/status_effect/stacking/fuming/F = H.has_status_effect(/datum/status_effect/stacking/fuming)
 	if(!F)
-		to_chat(H, "<span class='userdanger'>You start to feel overcome with rage!</span>")
+		to_chat(H, span_userdanger("You start to feel overcome with rage!"))
 		H.apply_status_effect(STATUS_EFFECT_FUMING)
 	else
-		to_chat(H, "<span class='userdanger'>You feel angrier!!</span>")
+		to_chat(H, span_userdanger("You feel angrier!!"))
 		F.add_stacks(1)
 		F.refresh()
 	return
@@ -789,7 +789,7 @@
 		return
 	exploding = TRUE
 	playsound(get_turf(owner), 'sound/effects/ordeals/gold/tentacle_before_explode.ogg', 50, 0, 2)
-	to_chat(owner, "<span class='userdanger'>You feel like something popped in your head!</span>")
+	to_chat(owner, span_userdanger("You feel like something popped in your head!"))
 	playsound(get_turf(owner), 'sound/effects/ordeals/gold/tentacle_explode.ogg', 100, 0, 4)
 	for(var/mob/living/carbon/human/H in oview(3, src))
 		H.apply_damage(250, RED_DAMAGE, null, H.run_armor_check(null, RED_DAMAGE), spread_damage = TRUE)
@@ -819,7 +819,7 @@
 	attack_verb_continuous = "bashes"
 	attack_verb_simple = "bashes"
 	attack_sound = 'sound/effects/ordeals/gold/cromer_slam.ogg'
-	deathsound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
+	death_sound = 'sound/abnormalities/doomsdaycalendar/Limbus_Dead_Generic.ogg'
 	damage_coeff = list(RED_DAMAGE = 0.5, WHITE_DAMAGE = 0.5, BLACK_DAMAGE = 0.5, PALE_DAMAGE = 1.5)
 	butcher_results = list(/obj/item/food/meat/slab/human/mutant/lizard = 1)
 	guaranteed_butcher_results = list(/obj/item/food/meat/slab/human/mutant/lizard = 1)
@@ -829,14 +829,14 @@
 	AddComponent(/datum/component/knockback, 2, FALSE, TRUE)
 
 /mob/living/simple_animal/hostile/ordeal/sin_lust/bullet_act(obj/projectile/P)
-	visible_message("<span class='userdanger'>[P] is blocked by [src]!</span>")
+	visible_message(span_userdanger("[P] is blocked by [src]!"))
 	P.Destroy()
 	return
 
 /mob/living/simple_animal/hostile/ordeal/sin_lust/attacked_by(obj/item/I, mob/living/user)
 	var/checkdir = check_target_facings(user, src)
 	if((get_dist(user, src) > 1) || checkdir == FACING_EACHOTHER)
-		user.visible_message("<span class='danger'>[user]'s attack is easily deflected by [src]!</span>", "<span class='userdanger'>Your attack is easily deflected by [src]!</span>")
+		user.visible_message(span_danger("[user]'s attack is easily deflected by [src]!"), span_userdanger("Your attack is easily deflected by [src]!"))
 		return
 	return ..()
 

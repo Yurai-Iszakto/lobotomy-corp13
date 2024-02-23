@@ -3,7 +3,7 @@
 
 // Right now the only core suppression with a proper reward, which is higher spawning stats.
 /datum/suppression/welfare
-	name = "Welfare Core Suppression"
+	name = WELFARE_CORE_SUPPRESSION
 	desc = "All employees will suffer from decreased resistance to randomly chosen damage types, which change on each meltdown."
 	reward_text = "All personnel will be able to avoid death/insanity by instantly healing to certain percentage \
 		of either health or sanity each time they reach that point. \
@@ -22,10 +22,10 @@
 		PALE_DAMAGE = 1,
 		)
 
-/datum/suppression/welfare/Run(run_white = FALSE)
+/datum/suppression/welfare/Run(run_white = FALSE, silent = FALSE)
 	. = ..()
-	RegisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED, .proc/OnJoin)
-	RegisterSignal(SSdcs, COMSIG_GLOB_MELTDOWN_START, .proc/OnMeltdown)
+	RegisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED, PROC_REF(OnJoin))
+	RegisterSignal(SSdcs, COMSIG_GLOB_MELTDOWN_START, PROC_REF(OnMeltdown))
 	for(var/mob/living/carbon/human/H in GLOB.human_list)
 		if(!H.ckey)
 			continue
@@ -34,7 +34,7 @@
 		ApplyEffect(H)
 	OnMeltdown()
 
-/datum/suppression/welfare/End()
+/datum/suppression/welfare/End(silent = FALSE)
 	UnregisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED)
 	UnregisterSignal(SSdcs, COMSIG_GLOB_MELTDOWN_START)
 	for(var/datum/status_effect/welfare_damage_resist/S in affected_statuses)
@@ -161,7 +161,7 @@
 	var/minimum_restore_percentage = 0.1
 
 /datum/status_effect/welfare_reward/on_apply()
-	RegisterSignal(owner, COMSIG_MOB_APPLY_DAMGE, .proc/OnDamage)
+	RegisterSignal(owner, COMSIG_MOB_APPLY_DAMGE, PROC_REF(OnDamage))
 	to_chat(owner, "<span class='notice'>Welfare Department modification has been applied to you!</span>")
 	return ..()
 
@@ -230,7 +230,7 @@
 
 /datum/welfare_reward_tracker/New()
 	. = ..()
-	RegisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED, .proc/OnJoin)
+	RegisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED, PROC_REF(OnJoin))
 
 /datum/welfare_reward_tracker/Destroy()
 	UnregisterSignal(SSdcs, COMSIG_GLOB_CREWMEMBER_JOINED)

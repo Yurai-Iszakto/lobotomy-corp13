@@ -7,6 +7,7 @@
 	icon_living = "cloudedmonk"
 	var/icon_aggro = "pretamonk"
 	icon_dead = "pretamonk"
+	portrait = "clouded_monk"
 	maxHealth = 2500
 	health = 2500
 	rapid_melee = 2
@@ -25,18 +26,18 @@
 	can_breach = TRUE
 	start_qliphoth = 3
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = 0,
-						ABNORMALITY_WORK_INSIGHT = list(20, 20, 55, 55, 55),
-						ABNORMALITY_WORK_ATTACHMENT = list(20, 45, 45, 45, 45),
-						ABNORMALITY_WORK_REPRESSION = list(40, 20, 40, 40, 40)
-						)
+		ABNORMALITY_WORK_INSTINCT = 0,
+		ABNORMALITY_WORK_INSIGHT = list(20, 20, 55, 55, 55),
+		ABNORMALITY_WORK_ATTACHMENT = list(20, 45, 45, 45, 45),
+		ABNORMALITY_WORK_REPRESSION = list(40, 20, 40, 40, 40),
+	)
 	work_damage_amount = 10
 	work_damage_type = WHITE_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/amrita,
-		/datum/ego_datum/armor/amrita
-		)
+		/datum/ego_datum/armor/amrita,
+	)
 	gift_type =  /datum/ego_gifts/amrita
 	gift_message = "Anyone can become a Buddha by washing away the anguish and delusion in their heart."
 	abnormality_origin = ABNORMALITY_ORIGIN_LOBOTOMY
@@ -56,7 +57,7 @@
 //init
 /mob/living/simple_animal/hostile/abnormality/clouded_monk/Initialize()
 	. = ..()
-	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, .proc/OnMobDeath) // Hell
+	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, PROC_REF(OnMobDeath)) // Hell
 	soundloop = new(list(src), FALSE)
 
 /mob/living/simple_animal/hostile/abnormality/clouded_monk/Destroy()
@@ -83,10 +84,12 @@
 /* Eventually there needs to be code here that causes it to breach when Yin gets too close. Yin is not implemented at this time. */
 //work code
 /mob/living/simple_animal/hostile/abnormality/clouded_monk/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-1)
 	return
 
 /mob/living/simple_animal/hostile/abnormality/clouded_monk/NeutralEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(prob(25))
 		datum_reference.qliphoth_change(-1)
 	return
@@ -106,8 +109,8 @@
 		charge_ready = TRUE
 		damage_taken = 0
 
-/mob/living/simple_animal/hostile/abnormality/clouded_monk/BreachEffect(mob/living/carbon/human/user)
-	..()
+/mob/living/simple_animal/hostile/abnormality/clouded_monk/BreachEffect(mob/living/carbon/human/user, breach_type)
+	. = ..()
 	soundloop.start()
 	playsound(src, 'sound/abnormalities/clouded_monk/howl.ogg', 50, 1)
 	playsound(src, 'sound/abnormalities/clouded_monk/transform.ogg', 50, 1)
@@ -161,7 +164,7 @@
 	var/dir_to_target = get_dir(get_turf(src), get_turf(target))
 	been_hit = list()
 	dash_num = (get_dist(src, target) + 3)
-	addtimer(CALLBACK(src, .proc/Charge, dir_to_target, 0), 2 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(Charge), dir_to_target, 0), 2 SECONDS)
 	charge_ready = FALSE
 	if(!eaten) //different sfx before and after eating someone
 		playsound(src, 'sound/abnormalities/clouded_monk/monk_cast.ogg', 100, 1)
@@ -180,16 +183,17 @@
 		stop_charge = TRUE
 	for(var/obj/structure/window/W in T.contents)
 		stop_charge = TRUE
-	for(var/obj/machinery/door/poddoor/P in T.contents)//FIXME: Still opens the "poddoor" secure shutters
-		stop_charge = TRUE
-		continue
+		break
+	for(var/obj/machinery/door/D in T.contents)
+		if(!D.CanAStarPass(null))
+			stop_charge = TRUE
+			break
+		if(D.density)
+			INVOKE_ASYNC(D, TYPE_PROC_REF(/obj/machinery/door, open), 2)
 	if(stop_charge)
 		charging = FALSE
 		icon_state = icon_aggro
 		return
-	for(var/obj/machinery/door/D in T.contents)
-		if(D.density)
-			D.open(2)
 	forceMove(T)
 	playsound(src, 'sound/abnormalities/clouded_monk/monk_groggy.ogg', 150, 1)
 	for(var/turf/TF in range(1, T))//Smash AOE visual
@@ -218,4 +222,4 @@
 			times_ran = dash_num //stop the charge, we got the meats!
 			if(!eaten)
 				eaten = TRUE
-	addtimer(CALLBACK(src, .proc/Charge, move_dir, (times_ran + 1)), 1)
+	addtimer(CALLBACK(src, PROC_REF(Charge), move_dir, (times_ran + 1)), 1)

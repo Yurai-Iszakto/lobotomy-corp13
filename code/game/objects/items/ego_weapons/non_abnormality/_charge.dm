@@ -13,10 +13,12 @@
 	. = ..()
 	if(!.)
 		return FALSE
-	if(charge<20 && target.stat != DEAD)
+	if((target.stat == DEAD) || target.status_flags & GODMODE)
+		return FALSE
+	if(charge<20)
 		charge+=1
 
 /obj/item/ego_weapon/city/charge/proc/release_charge(mob/living/target, mob/living/user)
 	charge -= charge_cost
 	charge = round(max(charge, 0), 1)
-	to_chat(user, "<span class='notice'>[release_message].</span>")
+	to_chat(user, span_notice("[release_message]."))

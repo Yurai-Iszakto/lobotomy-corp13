@@ -22,18 +22,18 @@
 	pet_bonus = TRUE
 	start_qliphoth = 3
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(35, 40, 40, 35, 35),
-						ABNORMALITY_WORK_INSIGHT = list(35, 40, 40, 35, 35),
-						ABNORMALITY_WORK_ATTACHMENT = 70,
-						ABNORMALITY_WORK_REPRESSION = list(50, 55, 55, 50, 45),
-						)
+		ABNORMALITY_WORK_INSTINCT = list(35, 40, 40, 35, 35),
+		ABNORMALITY_WORK_INSIGHT = list(35, 40, 40, 35, 35),
+		ABNORMALITY_WORK_ATTACHMENT = 70,
+		ABNORMALITY_WORK_REPRESSION = list(50, 55, 55, 50, 45),
+	)
 	work_damage_amount = 10
 	work_damage_type = RED_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/coiling,
-		/datum/ego_datum/armor/coiling
-		)
+		/datum/ego_datum/armor/coiling,
+	)
 	gift_type =  /datum/ego_gifts/coiling
 	abnormality_origin = ABNORMALITY_ORIGIN_ORIGINAL
 	var/girlboss_level = 0
@@ -42,7 +42,7 @@
 //Okay, but here's the breach on death
 /mob/living/simple_animal/hostile/abnormality/eris/Initialize()
 	. = ..()
-	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, .proc/on_mob_death) // Hell
+	RegisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH, PROC_REF(on_mob_death)) // Hell
 
 /mob/living/simple_animal/hostile/abnormality/eris/Destroy()
 	UnregisterSignal(SSdcs, COMSIG_GLOB_MOB_DEATH)
@@ -82,7 +82,7 @@
 
 	var/turf/target_turf = get_closest_atom(/turf/open, target_turfs, src)
 	if(istype(target_turf))
-		patrol_path = get_path_to(src, target_turf, /turf/proc/Distance_cardinal, 0, 200)
+		patrol_path = get_path_to(src, target_turf, TYPE_PROC_REF(/turf, Distance_cardinal), 0, 200)
 		return
 	return ..()
 
@@ -157,7 +157,7 @@
 		if(H.stat >= SOFT_CRIT)
 			continue
 		//Shamelessly fucking stolen from risk of rain's teddy bear. Maxes out at 20.
-		var/healamount = 20 * ((0.15*girlboss_level)/(0.15*girlboss_level + 1))
+		var/healamount = 20 * (TOUGHER_TIMES(girlboss_level))
 		H.adjustBruteLoss(-healamount)	//Healing for those around.
 		new /obj/effect/temp_visual/heal(get_turf(H), "#FF4444")
 
@@ -167,14 +167,14 @@
 	if(!ishuman(Proj.firer))
 		return
 	var/mob/living/carbon/human/H = Proj.firer
-	H.apply_damage(40*(0.15*girlboss_level/(0.15*girlboss_level + 1)), WHITE_DAMAGE, null, H.run_armor_check(null, WHITE_DAMAGE), spread_damage = TRUE)
+	H.apply_damage(40*(TOUGHER_TIMES(girlboss_level)), WHITE_DAMAGE, null, H.run_armor_check(null, WHITE_DAMAGE), spread_damage = TRUE)
 
 
 /mob/living/simple_animal/hostile/abnormality/eris/attacked_by(obj/item/I, mob/living/user)
 	..()
 	if(!user)
 		return
-	user.apply_damage(40*(0.15*girlboss_level/(0.15*girlboss_level + 1)), WHITE_DAMAGE, null, user.run_armor_check(null, WHITE_DAMAGE), spread_damage = TRUE)
+	user.apply_damage(40*(TOUGHER_TIMES(girlboss_level)), WHITE_DAMAGE, null, user.run_armor_check(null, WHITE_DAMAGE), spread_damage = TRUE)
 
 
 //Okay, but here's the work effects
@@ -185,11 +185,12 @@
 			Dine(user)
 
 /mob/living/simple_animal/hostile/abnormality/eris/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-3)
 	return
 
-/mob/living/simple_animal/hostile/abnormality/eris/BreachEffect(mob/living/carbon/human/user)
-	..()
+/mob/living/simple_animal/hostile/abnormality/eris/BreachEffect(mob/living/carbon/human/user, breach_type)
+	. = ..()
 	update_icon()
 	GiveTarget(user)
 

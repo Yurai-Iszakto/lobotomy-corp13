@@ -220,7 +220,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		// ID and id-related data
 		var/obj/item/card/id/id_card = tracked_living_mob.get_idcard(hand_first = FALSE)
 		if (id_card)
-			if(!istype(SSlobotomy_corp.core_suppression, /datum/suppression/information))
+			if(!GetCoreSuppression(/datum/suppression/information))
 				entry["name"] = id_card.registered_name
 				entry["assignment"] = id_card.assignment
 				entry["ijob"] = jobs[id_card.GetJobName()] // Tegu edit - Alt job titles
@@ -238,6 +238,8 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 				"brutedam" = round(tracked_living_mob.getBruteLoss(), 1),
 				"sandam" = round(tracked_living_mob.getSanityLoss(), 1)
 			)
+			entry["maxhp"] = round(tracked_living_mob.maxHealth)
+			entry["maxsp"] = round(tracked_living_mob.maxSanity)
 
 		// Location
 		if (sensor_mode >= SENSOR_COORDS)

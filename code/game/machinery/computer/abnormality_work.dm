@@ -24,11 +24,11 @@
 
 /obj/machinery/computer/abnormality/Initialize()
 	. = ..()
-	GLOB.abnormality_consoles += src
+	GLOB.lobotomy_devices += src
 	flags_1 |= NODECONSTRUCT_1
 
 /obj/machinery/computer/abnormality/Destroy()
-	GLOB.abnormality_consoles -= src
+	GLOB.lobotomy_devices -= src
 	..()
 
 /obj/machinery/computer/abnormality/update_overlays()
@@ -78,6 +78,16 @@
 	if(datum_reference.understanding != 0)
 		dat += "<span style='color: [COLOR_BLUE_LIGHT]'>Current Understanding is: [round((datum_reference.understanding/datum_reference.max_understanding)*100, 0.01)]%, granting a [datum_reference.understanding]% Work Success and Speed bonus.</span><br>"
 	dat += "<br>"
+
+	//Abnormality portraits
+	var/list/paths = get_portrait_path()
+	for(var/pahs in paths)
+		user << browse_rsc(pahs)
+	dat += {"<div style="float:right; width: 60%;">
+	<img src='[datum_reference.GetPortrait()].png' class="fit-picture" width="192" height="192">
+	</div>"}
+	dat += "<br>"
+
 	var/list/work_list = datum_reference.available_work
 	if(!tutorial && istype(SSlobotomy_corp.core_suppression, /datum/suppression/information))
 		work_list = shuffle(work_list) // A minor annoyance, at most
@@ -85,14 +95,15 @@
 		var/work_display = "[wt] Work"
 		if(scramble_list[wt] != null)
 			work_display += "?"
-		if(!tutorial && istype(SSlobotomy_corp.core_suppression, /datum/suppression/information))
-			var/datum/suppression/information/I = SSlobotomy_corp.core_suppression
+		var/datum/suppression/information/I = GetCoreSuppression(/datum/suppression/information)
+		if(!tutorial && istype(I))
 			work_display = Gibberish(work_display, TRUE, I.gibberish_value)
 		if(HAS_TRAIT(user, TRAIT_WORK_KNOWLEDGE))
 			dat += "<A href='byond://?src=[REF(src)];do_work=[wt]'>[work_display] \[[datum_reference.get_work_chance(wt, user)]%\]</A> <br>"
 		else
 			dat += "<A href='byond://?src=[REF(src)];do_work=[wt]'>[work_display]</A> <br>"
-	var/datum/browser/popup = new(user, "abno_work", "Abnormality Work Console", 400, 300)
+
+	var/datum/browser/popup = new(user, "abno_work", "Abnormality Work Console", 400, 350)
 	popup.set_content(dat)
 	popup.open()
 	return
@@ -278,7 +289,8 @@
 				qliphoth_meltdown_effect()
 
 /obj/machinery/computer/abnormality/proc/start_meltdown(melt_type = MELTDOWN_NORMAL, min_time = 60, max_time = 90)
-	meltdown_time = rand(min_time, max_time)
+	meltdown_time = rand(min_time, max_time) + (GetFacilityUpgradeValue(UPGRADE_ABNO_MELT_TIME) * \
+					(GetCoreSuppression(/datum/suppression/command) ? 0.5 : 1))
 	meltdown = melt_type
 	datum_reference.current.MeltdownStart()
 	update_icon()
@@ -295,7 +307,12 @@
 
 // Scrambles work types for this specific console
 /obj/machinery/computer/abnormality/proc/Scramble()
-	var/list/normal_works = shuffle(list(ABNORMALITY_WORK_INSTINCT, ABNORMALITY_WORK_INSIGHT, ABNORMALITY_WORK_ATTACHMENT, ABNORMALITY_WORK_REPRESSION))
+	var/list/normal_works = shuffle(list(
+		ABNORMALITY_WORK_INSTINCT,
+		ABNORMALITY_WORK_INSIGHT,
+		ABNORMALITY_WORK_ATTACHMENT,
+		ABNORMALITY_WORK_REPRESSION,
+	))
 	var/list/choose_from = normal_works.Copy()
 	for(var/work in normal_works)
 		scramble_list[work] = pick(choose_from - work)
@@ -319,7 +336,7 @@
 //Don't add tutorial consoles to global list, prevents them from being affected by Control suppression or other effects
 /obj/machinery/computer/abnormality/tutorial/Initialize()
 	. = ..()
-	GLOB.abnormality_consoles -= src
+	GLOB.lobotomy_devices -= src
 
 //don't scramble our poor interns
 /obj/machinery/computer/abnormality/tutorial/Scramble()

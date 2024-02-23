@@ -5,6 +5,7 @@
 	icon = 'ModularTegustation/Teguicons/48x64.dmi'
 	icon_state = "pygmalion"
 	icon_living = "pygmalion"
+	portrait = "pygmalion"
 	faction = list("neutral")
 
 	pixel_x = -8
@@ -27,18 +28,18 @@
 	threat_level = WAW_LEVEL
 
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(50, 50, 55, 55, 60),
-						ABNORMALITY_WORK_INSIGHT = 45,
-						ABNORMALITY_WORK_ATTACHMENT = 50,
-						ABNORMALITY_WORK_REPRESSION = list(40, 40, 40, 35, 30)
-						)
+		ABNORMALITY_WORK_INSTINCT = list(50, 50, 55, 55, 60),
+		ABNORMALITY_WORK_INSIGHT = 45,
+		ABNORMALITY_WORK_ATTACHMENT = 50,
+		ABNORMALITY_WORK_REPRESSION = list(40, 40, 40, 35, 30),
+	)
 	work_damage_amount = 10
 	work_damage_type = WHITE_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/my_own_bride,
-		/datum/ego_datum/armor/my_own_bride
-		)
+		/datum/ego_datum/armor/my_own_bride,
+	)
 	gift_type =  /datum/ego_gifts/bride
 	abnormality_origin = ABNORMALITY_ORIGIN_WONDERLAB
 
@@ -48,6 +49,11 @@
 	var/protect_cooldown
 	var/retaliation = 10
 	var/PRUDENCE_CAP = 60
+
+/mob/living/simple_animal/hostile/abnormality/pygmalion/CanAllowThrough(atom/movable/mover, turf/target)
+	if(sculptor && ishuman(mover))
+		return TRUE
+	return ..()
 
 /mob/living/simple_animal/hostile/abnormality/pygmalion/CanAttack(atom/target)
 	if(ishuman(target))
@@ -77,7 +83,7 @@
 		P.xo = target.x - T.x
 		P.original = target
 		P.preparePixelProjectile(target, T)
-		addtimer(CALLBACK (P, .obj/projectile/proc/fire), 3)
+		addtimer(CALLBACK (P, TYPE_PROC_REF(/obj/projectile, fire)), 3)
 	return
 
 
@@ -121,10 +127,11 @@
 		return
 
 /mob/living/simple_animal/hostile/abnormality/pygmalion/SuccessEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(user.stat != DEAD && !sculptor && istype(user))
 		sculptor = user
-		RegisterSignal(user, COMSIG_LIVING_DEATH, .proc/SculptorDeathOrInsane)
-		RegisterSignal(user, COMSIG_HUMAN_INSANE, .proc/SculptorDeathOrInsane)
+		RegisterSignal(user, COMSIG_LIVING_DEATH, PROC_REF(SculptorDeathOrInsane))
+		RegisterSignal(user, COMSIG_HUMAN_INSANE, PROC_REF(SculptorDeathOrInsane))
 		user.apply_status_effect(STATUS_EFFECT_SCULPTOR)
 		to_chat(user, span_nicegreen("You feel attached to this abnormality."))
 

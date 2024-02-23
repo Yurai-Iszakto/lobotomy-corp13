@@ -40,8 +40,8 @@
 	if(SSmaptype.maptype == "city")
 		return FALSE
 	visible_message(
-		"<span class='danger'>[src] devours [L]!</span>",
-		"<span class='userdanger'>You feast on [L], restoring your health!</span>")
+		span_danger("[src] devours [L]!"),
+		span_userdanger("You feast on [L], restoring your health!"))
 	if(istype(L, SWEEPER_TYPES))
 		//Would have made it based on biotypes but that has its own issues.
 		adjustBruteLoss(-20)
@@ -107,8 +107,8 @@
 	if(SSmaptype.maptype == "city")
 		return FALSE
 	visible_message(
-		"<span class='danger'>[src] devours [L]!</span>",
-		"<span class='userdanger'>You feast on [L], restoring your health!</span>")
+		span_danger("[src] devours [L]!"),
+		span_userdanger("You feast on [L], restoring your health!"))
 	if(istype(L, SWEEPER_TYPES))
 		adjustBruteLoss(-20)
 	else
@@ -273,8 +273,8 @@
 	if(!L)
 		return FALSE
 	visible_message(
-		"<span class='danger'>[src] devours [L]!</span>",
-		"<span class='userdanger'>You feast on [L], restoring your health!</span>")
+		span_danger("[src] devours [L]!"),
+		span_userdanger("You feast on [L], restoring your health!"))
 	if(istype(L, SWEEPER_TYPES))
 		adjustBruteLoss(-20)
 	else
@@ -350,54 +350,26 @@
 			return TRUE
 	return ..()
 
-/mob/living/simple_animal/hostile/ordeal/indigo_midnight/PickTarget(list/Targets)
-	//Default to normal targeting if already phase 3 or only have 1 target
-	if(phase >= 3 || Targets.len <= 1)
+//Remind me to return to this and make complex targeting a option for all creatures. I may make it a TRUE FALSE var.
+/mob/living/simple_animal/hostile/ordeal/indigo_midnight/ValueTarget(atom/target_thing)
+	//Higher brain functions have been turned off.
+	if(phase >= 3)
 		return ..()
 
-	/* If we have a target and their value is
-		above 80 or "adjacent living creature" then
-		just keep killing them. */
-	if(target)
-		// Focus on finishing them off.
-		if(ValueTarget(target) > 86)
-			return target
-
-	/* Form a list of our targets, value how much we hate
-		them, and then pick the target who has the MOST hate. */
-	for(var/i in Targets)
-		Targets[i] = ValueTarget(i)
-	return ReturnHighestValue(Targets)
-
-//Remind me to return to this and make complex targeting a option for all creatures. I may make it a TRUE FALSE var.
-/mob/living/simple_animal/hostile/ordeal/indigo_midnight/proc/ValueTarget(atom/target_thing, hate_value = 0)
-	/* This is in order to treat Mechas as living by
-		instead considering their pilot for the hate value. */
-	if(ismecha(target_thing))
-		var/obj/vehicle/sealed/mecha/M = target_thing
-		for(var/occupant in M.occupants)
-			if(CanAttack(occupant))
-				target_thing = occupant
+	. = ..()
 
 	if(isliving(target_thing))
 		var/mob/living/L = target_thing
-
-		//Minimum starting hate for anything living is 80.
-		hate_value += 80
 		//Hate for corpses since we eats them.
 		if(L.stat == DEAD)
-			hate_value += 10
+			. += 10
 		//Highest possible addition is + 9.9
 		if(iscarbon(L))
 			if(L.stat != DEAD && L.health <= (L.maxHealth * 0.6))
 				var/upper = L.maxHealth - HEALTH_THRESHOLD_DEAD
 				var/lower = L.health - HEALTH_THRESHOLD_DEAD
-				hate_value += min( 2 * ( 1 / ( max( lower, 1 ) / upper ) ), 20)
-		//If your not next to us your hate is down by 50
-		if(!L.Adjacent(targets_from))
-			hate_value -= 50
+				. += min( 2 * ( 1 / ( max( lower, 1 ) / upper ) ), 20)
 
-	return hate_value
 	/*
 	Priority from greatest to least:
 	dead close: 90
@@ -444,11 +416,11 @@
 		target_turf = get_closest_atom(/turf/open, low_priority_turfs, src)
 
 	if(istype(target_turf))
-		patrol_path = get_path_to(src, target_turf, /turf/proc/Distance_cardinal, 0, 200)
-		return
+		patrol_path = get_path_to(src, target_turf, TYPE_PROC_REF(/turf, Distance_cardinal), 0, 200)
+		return TRUE
 	//unsure if this patrol reset will cause the patrol cooldown even if there is not patrol path.
 	patrol_reset()
-	return
+	return FALSE
 
 /mob/living/simple_animal/hostile/ordeal/indigo_midnight/AttackingTarget()
 	. = ..()
@@ -470,8 +442,8 @@
 	if(!L)
 		return FALSE
 	visible_message(
-		"<span class='danger'>[src] devours [L]!</span>",
-		"<span class='userdanger'>You feast on [L], restoring your health!</span>")
+		span_danger("[src] devours [L]!"),
+		span_userdanger("You feast on [L], restoring your health!"))
 	if(istype(L, SWEEPER_TYPES))
 		adjustBruteLoss(-20)
 	else
@@ -574,7 +546,7 @@
 			for(var/mob/living/carbon/human/L in T)
 				if(L == src || L.throwing)
 					continue
-				to_chat(L, "<span class='userdanger'>[src]'s ground slam shockwave sends you flying!</span>")
+				to_chat(L, span_userdanger("[src]'s ground slam shockwave sends you flying!"))
 				var/turf/thrownat = get_ranged_target_turf_direct(src, L, 8, rand(-10, 10))
 				L.throw_at(thrownat, 8, 2, src, TRUE, force = MOVE_FORCE_OVERPOWERING, gentle = TRUE)
 				L.apply_damage(slam_damage, RED_DAMAGE, null, L.run_armor_check(null, BLACK_DAMAGE), spread_damage = TRUE)
@@ -598,7 +570,7 @@
 
 /obj/effect/sweeperspawn/Initialize()
 	. = ..()
-	addtimer(CALLBACK(src, .proc/spawnscout), 6)
+	addtimer(CALLBACK(src, PROC_REF(spawnscout)), 6)
 
 /obj/effect/sweeperspawn/proc/spawnscout()
 	new /mob/living/simple_animal/hostile/ordeal/indigo_spawn(get_turf(src))

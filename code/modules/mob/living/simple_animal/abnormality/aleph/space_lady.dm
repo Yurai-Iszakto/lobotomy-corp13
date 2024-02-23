@@ -16,18 +16,18 @@
 	retreat_distance = 3
 	minimum_distance = 3
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = 0,
-						ABNORMALITY_WORK_INSIGHT = list(20, 30, 40, 50, 55),
-						ABNORMALITY_WORK_ATTACHMENT = list(40, 40, 40, 45, 45),
-						ABNORMALITY_WORK_REPRESSION = list(0, 0, 30, 30, 30)
-						)
+		ABNORMALITY_WORK_INSTINCT = 0,
+		ABNORMALITY_WORK_INSIGHT = list(20, 30, 40, 50, 55),
+		ABNORMALITY_WORK_ATTACHMENT = list(40, 40, 40, 45, 45),
+		ABNORMALITY_WORK_REPRESSION = list(0, 0, 30, 30, 30),
+	)
 	work_damage_amount = 8	//Half white, half black damage
 	work_damage_type = WHITE_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/space,
-		/datum/ego_datum/armor/space
-		)
+		/datum/ego_datum/armor/space,
+	)
 	gift_type =  /datum/ego_gifts/space
 	abnormality_origin = ABNORMALITY_ORIGIN_ARTBOOK
 	ranged = TRUE
@@ -54,7 +54,7 @@
 		return
 
 	if(prob(10))
-		addtimer(CALLBACK(src, .proc/ExplodeTimer), explosion_timer*2)
+		addtimer(CALLBACK(src, PROC_REF(ExplodeTimer)), explosion_timer*2)
 		can_act = FALSE
 
 	else if(prob(50))
@@ -73,9 +73,9 @@
 	if (explosion_state == 0)
 		explosion_state = initial(explosion_state)
 		icon_state = "space_attack"
-		addtimer(CALLBACK(src, .proc/Explode), 15)
+		addtimer(CALLBACK(src, PROC_REF(Explode)), 15)
 	else
-		addtimer(CALLBACK(src, .proc/ExplodeTimer), explosion_timer)
+		addtimer(CALLBACK(src, PROC_REF(ExplodeTimer)), explosion_timer)
 
 /mob/living/simple_animal/hostile/abnormality/space_lady/proc/Explode()
 	//Black hole effect
@@ -105,8 +105,12 @@
 
 //work stuff
 /mob/living/simple_animal/hostile/abnormality/space_lady/WorktickFailure(mob/living/carbon/human/user)
-	user.apply_damage(work_damage_amount, BLACK_DAMAGE, null, user.run_armor_check(null, BLACK_DAMAGE), spread_damage = TRUE)
-	return ..()
+	var/list/damtypes = list(WHITE_DAMAGE, BLACK_DAMAGE)
+	for(var/damagetype in damtypes) // take 8 of both damage types every failed tick
+		user.apply_damage(work_damage_amount, damagetype, null, user.run_armor_check(null, damagetype))
+	work_damage_type = pick(damtypes) //Displays either work damage type every tick
+	WorkDamageEffect()
+	return
 
 /mob/living/simple_animal/hostile/abnormality/space_lady/PostWorkEffect(mob/living/carbon/human/user, work_type, pe, work_time)
 	if(get_user_level(user) < 5)
@@ -123,15 +127,17 @@
 	return TRUE
 
 /mob/living/simple_animal/hostile/abnormality/space_lady/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-2)
 	return
 
 /mob/living/simple_animal/hostile/abnormality/space_lady/NeutralEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	datum_reference.qliphoth_change(-1)
 	return
 
-/mob/living/simple_animal/hostile/abnormality/space_lady/BreachEffect(mob/living/carbon/human/user)
-	..()
+/mob/living/simple_animal/hostile/abnormality/space_lady/BreachEffect(mob/living/carbon/human/user, breach_type)
+	. = ..()
 	Teleport()
 
 

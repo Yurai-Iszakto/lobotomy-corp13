@@ -312,10 +312,10 @@
 	inhand_icon_state = "featherofhonor"
 	ammo_type = /obj/item/ammo_casing/caseless/ego_feather
 	weapon_weight = WEAPON_HEAVY
-	special = "This weapon deals 35 white in melee."
-	force = 35
+	special = "This weapon deals 42 white in melee."
+	force = 42
 	damtype = WHITE_DAMAGE
-	fire_delay = 25
+	fire_delay = 12
 	attribute_requirements = list(
 							FORTITUDE_ATTRIBUTE = 60,
 							PRUDENCE_ATTRIBUTE = 60
@@ -499,7 +499,8 @@
 	icon_state = "hypocrisy"
 	inhand_icon_state = "hypocrisy"
 	worn_icon_state = "hypocrisy"
-	special = "Use this weapon in hand to place a trap."
+	special = "Use this weapon in hand to place a trap that inflicts \
+		50 RED damage and alerts the user of the area it was triggered."
 	ammo_type = /obj/item/ammo_casing/caseless/ego_hypocrisy
 	weapon_weight = WEAPON_HEAVY
 	fire_delay = 25

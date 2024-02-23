@@ -26,7 +26,7 @@
 		. += "[src.name] is ready to be used."
 	else
 		//We want to make sure that the failed verson is different enuff that at a glance someone can tell
-		. += "[src.name] is can not currently be used."
+		. += "[src.name] can not currently be used."
 
 
 //This is used to make sure that are records watch is able to be used by the player
@@ -49,7 +49,7 @@
 	//Ask if we do infact have a cooldown or not
 	if(records_cooldown_timer)
 		//We have a cooldown, so first to not cheat the player out of time we first start the cooldown timer
-		addtimer(CALLBACK(src, .proc/reset), records_cooldown_timer)
+		addtimer(CALLBACK(src, PROC_REF(reset)), records_cooldown_timer)
 		//Set the watch to not be usable as we are now on cooldown
 		usable = FALSE
 

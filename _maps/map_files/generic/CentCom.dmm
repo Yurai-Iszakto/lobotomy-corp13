@@ -829,12 +829,18 @@
 /turf/open/floor/plasteel/white,
 /area/facility_hallway/manager)
 "dr" = (
-/obj/item/jammer/self_activated{
-	alpha = 0;
-	range = 20
+/obj/effect/turf_decal/weather/snow/corner,
+/obj/effect/radiojammer{
+	range = 14
 	},
-/turf/open/water/deep/saltwater/extradeep,
-/area/fishboat)
+/turf/open/floor/plasteel/dark{
+	icon = 'icons/turf/snow.dmi';
+	icon_state = "snow-ice";
+	name = "ice";
+	initial_gas_mix = "o2=22;n2=82;TEMP=270.15";
+	base_icon_state = "snow-ice"
+	},
+/area/snowqueen)
 "dv" = (
 /obj/structure/flora/iceshards{
 	pixel_y = -12;
@@ -3077,13 +3083,6 @@
 	dir = 1
 	},
 /area/tdome/tdomeobserve)
-"lW" = (
-/obj/item/jammer/self_activated{
-	alpha = 0;
-	range = 20
-	},
-/turf/open/space/basic,
-/area/space)
 "lX" = (
 /turf/closed/indestructible/abductor{
 	icon_state = "alien10"
@@ -3378,12 +3377,6 @@
 	},
 /turf/open/floor/plasteel/dark,
 /area/centcom/evac)
-"ns" = (
-/obj/item/jammer/self_activated{
-	alpha = 0
-	},
-/turf/open/water/deep/saltwater/extradeep,
-/area/fishboat)
 "nx" = (
 /obj/structure/flora/bush,
 /turf/open/floor/plating/asteroid/snow/airless,
@@ -3523,6 +3516,9 @@
 /obj/machinery/light,
 /obj/effect/turf_decal/siding/wood{
 	dir = 7
+	},
+/obj/machinery/computer/camera_advanced{
+	dir = 1
 	},
 /turf/open/floor/wood,
 /area/facility_hallway/manager)
@@ -5858,9 +5854,8 @@
 /obj/item/reagent_containers/food/drinks/waterbottle/large,
 /obj/item/reagent_containers/food/drinks/waterbottle/large,
 /obj/item/reagent_containers/food/drinks/waterbottle/large,
-/obj/item/reagent_containers/food/drinks/waterbottle/large,
-/obj/structure/closet/crate/pcorp,
 /obj/effect/shelter_forcefield,
+/obj/structure/closet/crate/pcorp/shelter,
 /turf/open/floor/shelter,
 /area/shelter)
 "wu" = (
@@ -8346,10 +8341,6 @@
 	},
 /turf/closed/mineral/snowmountain/cavern,
 /area/snowqueen)
-"Gh" = (
-/obj/item/jammer/self_activated,
-/turf/closed/indestructible/rock,
-/area/shelter)
 "Gj" = (
 /obj/effect/turf_decal/siding/white/corner{
 	dir = 8
@@ -10263,6 +10254,9 @@
 /turf/open/floor/carpet/green,
 /area/facility_hallway/manager)
 "Nk" = (
+/obj/effect/radiojammer{
+	range = 15
+	},
 /turf/closed/indestructible/wood,
 /area/fishboat)
 "Nm" = (
@@ -11061,6 +11055,9 @@
 /area/centcom/holding)
 "QG" = (
 /obj/effect/landmark/snowqueen_playerspawn,
+/obj/effect/radiojammer{
+	range = 6
+	},
 /turf/open/floor/plasteel/dark{
 	icon = 'icons/turf/snow.dmi';
 	icon_state = "snow-ice";
@@ -11431,12 +11428,12 @@
 /turf/open/floor/plasteel,
 /area/centcom/supplypod/loading/two)
 "Sf" = (
-/obj/structure/closet/crate/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/effect/shelter_forcefield,
+/obj/structure/closet/crate/pcorp/shelter,
 /turf/open/floor/shelter,
 /area/shelter)
 "Sg" = (
@@ -12493,12 +12490,12 @@
 /obj/machinery/light/small{
 	dir = 8
 	},
-/obj/structure/closet/crate/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/effect/shelter_forcefield,
+/obj/structure/closet/crate/pcorp/shelter,
 /turf/open/floor/shelter,
 /area/shelter)
 "WQ" = (
@@ -12761,6 +12758,9 @@
 "XJ" = (
 /obj/structure/toolabnormality/shelter/exit,
 /obj/effect/shelter_forcefield,
+/obj/effect/radiojammer{
+	range = 8
+	},
 /turf/open/floor/shelter,
 /area/shelter)
 "XL" = (
@@ -12950,7 +12950,6 @@
 /turf/open/floor/plasteel/cafeteria,
 /area/centcom/holding)
 "Yw" = (
-/obj/structure/closet/crate/pcorp,
 /obj/machinery/light/small{
 	dir = 4
 	},
@@ -12959,6 +12958,7 @@
 /obj/item/storage/box/pcorp,
 /obj/item/storage/box/pcorp,
 /obj/effect/shelter_forcefield,
+/obj/structure/closet/crate/pcorp/shelter,
 /turf/open/floor/shelter,
 /area/shelter)
 "YA" = (
@@ -64007,7 +64007,7 @@ Sg
 Sg
 Sg
 Sg
-ns
+Sg
 Sg
 Sg
 Sg
@@ -66566,7 +66566,7 @@ aa
 tF
 Sg
 Sg
-ns
+Sg
 Sg
 Sg
 Sg
@@ -66589,7 +66589,7 @@ CH
 Sg
 Sg
 Sg
-dr
+Sg
 Sg
 Sg
 tF
@@ -69147,7 +69147,7 @@ Sg
 Sg
 Sg
 Sg
-ns
+Sg
 Sg
 Sg
 Sg
@@ -70409,7 +70409,7 @@ aa
 aa
 aa
 aa
-lW
+aa
 aa
 aa
 aa
@@ -74250,7 +74250,7 @@ aa
 aa
 aa
 aa
-lW
+aa
 qu
 qu
 rB
@@ -74265,7 +74265,7 @@ rB
 rB
 Ho
 TF
-Ow
+dr
 rB
 rB
 tl
@@ -74298,7 +74298,7 @@ eM
 XJ
 sI
 wU
-Gh
+FI
 FI
 aa
 aa
@@ -75563,7 +75563,7 @@ rB
 Yb
 qu
 qu
-lW
+aa
 qu
 qu
 qu
@@ -78119,7 +78119,7 @@ aa
 aa
 aa
 aa
-lW
+aa
 aa
 aa
 aa

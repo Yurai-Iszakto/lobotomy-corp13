@@ -12,6 +12,7 @@
 	icon_state = "nothing"
 	icon_living = "nothing"
 	icon_dead = "nothing_dead"
+	portrait = "nothing_there"
 	melee_damage_type = RED_DAMAGE
 	damage_coeff = list(RED_DAMAGE = 0.3, WHITE_DAMAGE = 0.8, BLACK_DAMAGE = 0.8, PALE_DAMAGE = 1.2)
 	melee_damage_lower = 55
@@ -25,24 +26,24 @@
 	threat_level = ALEPH_LEVEL
 	start_qliphoth = 1
 	work_chances = list(
-						ABNORMALITY_WORK_INSTINCT = list(0, 0, 35, 40, 45),
-						ABNORMALITY_WORK_INSIGHT = 0,
-						ABNORMALITY_WORK_ATTACHMENT = 50,
-						ABNORMALITY_WORK_REPRESSION = 0
-						)
+		ABNORMALITY_WORK_INSTINCT = list(0, 0, 35, 40, 45),
+		ABNORMALITY_WORK_INSIGHT = 0,
+		ABNORMALITY_WORK_ATTACHMENT = 50,
+		ABNORMALITY_WORK_REPRESSION = 0,
+	)
 	work_damage_amount = 16
 	work_damage_type = RED_DAMAGE
 
 	ego_list = list(
 		/datum/ego_datum/weapon/mimicry,
-		/datum/ego_datum/armor/mimicry
-		)
+		/datum/ego_datum/armor/mimicry,
+	)
 	gift_type =  /datum/ego_gifts/mimicry
 	abnormality_origin = ABNORMALITY_ORIGIN_LOBOTOMY
 
 	grouped_abnos = list(
 		/mob/living/simple_animal/hostile/abnormality/kqe = 1.5,
-		/mob/living/simple_animal/hostile/abnormality/nobody_is = 1.5
+		/mob/living/simple_animal/hostile/abnormality/nobody_is = 1.5,
 	)
 
 	var/mob/living/disguise = null
@@ -75,7 +76,7 @@
 	//PLAYABLES ATTACKS
 	attack_action_types = list(
 		/datum/action/cooldown/nt_goodbye,
-		/datum/action/innate/abnormality_attack/toggle/nt_hello_toggle
+		/datum/action/innate/abnormality_attack/toggle/nt_hello_toggle,
 	)
 
 /datum/action/cooldown/nt_goodbye
@@ -126,6 +127,7 @@
 	return ..()
 
 /mob/living/simple_animal/hostile/abnormality/nothing_there/PostSpawn()
+	. = ..()
 	var/list/old_heard = RememberVar(1)
 	if(islist(old_heard) && LAZYLEN(old_heard))
 		heard_words = old_heard
@@ -258,7 +260,7 @@
 	M.death()
 	M.forceMove(src) // Hide them for examine message to work
 	disguiseloop.start()
-	addtimer(CALLBACK(src, .proc/ZeroQliphoth), rand(20 SECONDS, 50 SECONDS))
+	addtimer(CALLBACK(src, PROC_REF(ZeroQliphoth)), rand(20 SECONDS, 50 SECONDS))
 
 /mob/living/simple_animal/hostile/abnormality/nothing_there/proc/drop_disguise()
 	if(!istype(disguise))
@@ -379,15 +381,16 @@
 	return
 
 /mob/living/simple_animal/hostile/abnormality/nothing_there/FailureEffect(mob/living/carbon/human/user, work_type, pe)
+	. = ..()
 	if(GODMODE in user.status_flags)
 		return
 	disguise_as(user)
 	return
 
-/mob/living/simple_animal/hostile/abnormality/nothing_there/BreachEffect(mob/living/carbon/human/user)
+/mob/living/simple_animal/hostile/abnormality/nothing_there/BreachEffect(mob/living/carbon/human/user, breach_type)
 	if(!(status_flags & GODMODE)) // Already breaching
 		return
-	..()
+	. = ..()
 	soundloop.stop()
 	if(!istype(disguise))
 		next_transform = world.time + rand(30 SECONDS, 40 SECONDS)
@@ -414,6 +417,6 @@
 	for(var/turf/open/T in view(3, src))
 		new /obj/effect/temp_visual/flesh(T)
 	forceMove(target_turf)
-	addtimer(CALLBACK(src, .proc/drop_disguise), rand(40 SECONDS, 90 SECONDS))
+	addtimer(CALLBACK(src, PROC_REF(drop_disguise)), rand(40 SECONDS, 90 SECONDS))
 
 #undef NT_GOODBYE_COOLDOWN
